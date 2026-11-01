@@ -1,0 +1,16 @@
+# Verification: agreement of the three force routes and of the ramp formula with the simulation
+size 160 72
+columns 2
+panel (a)
+xlabel "Length of cylinder 10, L_{10} (mm)"
+ylabel "Force F_{10} (kN)"
+series ../results/tilt.csv L_mm F_N yscale=0.001 label="virtual work" line=solid
+series ../results/tilt.csv L_mm F_eq_N yscale=0.001 label="link equilibrium" line=none marker=circle-open every=11
+series ../results/tilt.csv L_mm F_fd_N yscale=0.001 label="energy differences" line=none marker=cross every=11
+hline 0 line=dotted
+panel (b)
+xlabel "Dimensionless ramp time τ = ω_{h} t_{r}"
+ylabel "Dynamic factor κ"
+legend inside
+series ../results/ramp_scan.csv tau kappa_formula label="formula" line=solid
+series ../results/ramp_scan.csv tau kappa_sim label="simulation" line=none marker=circle-open every=3

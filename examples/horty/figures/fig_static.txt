@@ -1,0 +1,17 @@
+# Static loads of the tilting cylinder: solid-model and outline mass properties
+size 160 72
+columns 2
+panel (a)
+xlabel "Mast inclination from vertical θ (°)"
+ylabel "Pressure on the loaded side p_{10} (bar)"
+series ../results/tilt.csv rot_W_deg p_bar label="solid model" line=solid
+series ../results/tilt_outline.csv rot_W_deg p_bar label="bounding outlines" line=dashed
+point -90.618 108.4 label="published values" marker=circle-open
+point -90.618 101.1 marker=circle-open
+hline 140 label="p_{dop} = 140 bar" line=dotted
+panel (b)
+xlabel "Hammer position s_{b} (m)"
+ylabel "Pressure p_{10}, mast horizontal (bar)"
+series ../results/hammer_position.csv L_mm p_bar xscale=0.001 xoffset=-4.9425 label="solid model" line=solid
+series ../results/hammer_position_outline.csv L_mm p_bar xscale=0.001 xoffset=-4.9425 label="bounding outlines" line=dashed
+hline 140 line=dotted label="140 bar"

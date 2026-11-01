@@ -1,0 +1,20 @@
+# assemblies of the tower (title-block masses, kg) and their link; centroid and moment of
+# inertia come from the solid model (prefix = assembly name prefix at level 2 of the STEP tree)
+name,body,group,mass_kg,prefix,remainder,x_mm,y_mm,J_kgm2
+upper bracket 5 (366-1.2.0),AC,AC,69.4,366-1.2.0,yes,,,
+support 6 (366-1.3.0),BD,BD,38.9,366-1.3.0,yes,,,
+triangular bracket 7 (366-1.4.0),CD,CD,45.0,366-1.4.0,yes,,,
+tower bracket 9 (366-1.5.0),W,W,58.2,366-1.5.0,yes,,,
+support shaft 11 (366-1.6.0),W,W,16.5,366-1.6.0,yes,,,
+turntable housing (366-1.18.0),W,W,39.4,366-1.18.0,yes,,,
+cylinder 19 (366-1.11.0),W,W,26.0,366-1.11.0,yes,,,
+mast 18 (366-1.8.0),M,M,178.0,366-1.8.0,yes,,,
+hammer assembly SB 102 (366-1.24.0),hammer,M,220.0,366-1.24.0,yes,,,
+hammer bracket (366-1.12.0),hammer,M,3.8,366-1.24.0,yes,,,
+drive assembly (366-1.22.0),M,M,53.0,366-1.22.0,yes,,,
+rope reeving assembly (366-1.23.0),M,M,25.0,366-1.23.0,yes,,,
+post-positioning assembly (366-1.32),M,M,19.7,366-1.32,yes,,,
+gripper assembly (366-1.31),M,M,36.0,366-1.31,yes,,,
+post,M,post,56.0,,no,-1250,990,74.6666667
+cylinder 8 (366-1.9.0; mass set in tower.mech),-,S8,34.0,,yes,,,
+cylinder 10 (366-1.10.0; mass set in tower.mech),-,S10,25.0,,yes,,,

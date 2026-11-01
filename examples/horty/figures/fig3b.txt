@@ -1,0 +1,11 @@
+size 82 80
+columns 1
+palette okabe-ito
+grid
+panel
+legend_columns 1
+legend_rows 3
+xlabel "Dimensionless ramp time τ = ω_{h}t_{r}"
+ylabel "Dynamic factor κ"
+series ../results/ramp_scan_dense.csv tau kappa_formula label="Eq. (8)" line=solid width=0.3
+series ../results/ramp_scan.csv tau kappa_sim label="simulation, Eq. (10)" line=none marker=circle-open every=2 width=0.3

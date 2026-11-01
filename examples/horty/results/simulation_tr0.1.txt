@@ -1,0 +1,4 @@
+start L=978.00 mm, extension at 11.25 L/min (v=37.3 mm/s), ramp 0.100 s, damping 0.000
+reduced mass 52222.2 kg, natural frequency 3.850 Hz
+max excess force: simulation 36546.6 N, formula m v w kappa 36444.0 N (+0.28 %)
+peak chamber pressure 76.2 bar

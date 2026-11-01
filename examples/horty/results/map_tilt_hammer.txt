@@ -1,0 +1,1 @@
+map S10 x winch (177 x 59), loads of S10: p_max 189.31 bar, largest local ramp time (retraction) 1338.028 s

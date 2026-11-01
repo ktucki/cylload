@@ -1,0 +1,30 @@
+# drawing only (cylload draw --step): assembly name prefix at level 2 of the STEP tree -> link,
+# ground, cylinder barrel/rod (ACT.barrel, ACT.rod) or - (left out). The first matching row wins.
+prefix,body
+366-1.1.1,ground
+366-1.2.0,AC
+366-1.3.0,BD
+366-1.4.0,CD
+366-1.5.0,W
+366-1.6.0,W
+366-1.18.0,W
+366-1.9.0 Silownik hydraul 100x50x350 Rura,S8.barrel
+366-1.9.0 Silownik hydraul 100x50x350 Tłok,S8.rod
+366-1.10.0 Silownik hydraul 100x50x350 Rura,S10.barrel
+366-1.10.0 Silownik hydraul 80x40x440 Tłok,S10.rod
+366-1.11.0 Silownik hydraul 60x40x1000 Rura,S19.barrel
+366-1.11.0 Silownik hydraul 60x40x1000 Tłok,S19.rod
+366-1.8.0,M
+366-1.22.0,M
+366-1.23.0,M
+366-1.31,M
+366-1.32,M
+1.31,M
+366-1.24,hammer
+1.24,hammer
+366-1.0.16,W
+366-1.28.0,-
+366-1.15.0,-
+366-1.26.0,-
+366-1.14.0,-
+366-1.13.0,-

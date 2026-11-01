@@ -1,0 +1,22 @@
+# Monte Carlo study of the tower loads (parameter uncertainty at fixed operating states,
+# as in applsci-4655781, Section 2.7 and Table 6); uniform distributions
+seed 2026
+samples 3000
+# +/-10 % on the masses of each link
+scale k_AC group:AC 0.9 1.1
+scale k_BD group:BD 0.9 1.1
+scale k_CD group:CD 0.9 1.1
+scale k_W  group:W  0.9 1.1
+scale k_M  group:M  0.9 1.1
+# remaining mass m_res from 0 to 222.7 kg: the tables distribute all of it, factor 887.9/1110.6 .. 1
+scale m_res group:AC,group:BD,group:CD,group:W,group:M,group:S8,group:S10 0.799486 1.0
+# centres of mass of the mast and tower links +/-50 mm
+shift dM group:M,group:post -50 50 -50 50
+shift dW group:W -50 50 -50 50
+# outputs (same samples for every state); winch length = 4942.5 mm + hammer position s_b
+output p8_lowered     S8  S8=698 S10=1183
+output p10_h_sb0      S10 S8=973 S10=758 winch=4942.5
+output p10_h_sb2.90   S10 S8=973 S10=758
+output p10_h_sb5.78   S10 S8=973 S10=758 winch=10721.5
+output p10_vertical   S10 S8=973 S10=1183
+output p19_vertical   S19 S8=973 S10=1183

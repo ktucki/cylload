@@ -1,0 +1,9 @@
+# Horty AutoHammer - post-lifting beam 2.5.0, simplified variant: centre of the bounding
+# outline of the beam assembly and a rectangular-prism moment of inertia (0.4 x 2.3 m)
+title Horty post-lifting beam 2.5.0 - outline variant
+gravity 0 -9.81
+body beam
+revolute O ground beam  -1069.0  99.4
+actuator Sp ground -838.0 -98.6  beam -1181.0 864.4  bore=50 rod=30 min=630 max=1030 mass=8.4
+mass beam_2.5.0 beam -1280.0 2054.0 135.0 61.3125 group=beam
+mass post       beam -1280.0 2054.0  56.0 74.6667 group=post

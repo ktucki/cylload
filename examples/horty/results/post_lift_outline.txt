@@ -1,0 +1,7 @@
+actuator Sp, L 630.00..1030.00 mm, 121 points
+  F_max 12585.5 N at L=630.00   F_min -4230.0 N at L=1030.00
+  p_max 64.10 bar at L=630.00
+  checks: |F_vw-F_fd|/max|F| = 1.87e-10, |F_vw-F_eq|/max|F| = 5.78e-16
+  energy: integral F dL = 3107.984 J, Delta V = 3107.984 J (rel. diff 7.52e-08)
+  reduced mass 9471.3..44284.4 kg, natural frequency 2.25..6.04 Hz
+  Euler load at L_max 77678 N, safety factor 6.17

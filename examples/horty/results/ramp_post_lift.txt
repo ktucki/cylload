@@ -1,0 +1,2 @@
+actuator Sp, flow 56.10 L/min: v_ext 476.2 mm/s (0.84 s), v_ret 744.0 mm/s (0.54 s)
+minimum valve ramp for p <= 140.0 bar: extension 3.355 s, retraction 5.242 s

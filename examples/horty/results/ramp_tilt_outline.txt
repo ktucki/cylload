@@ -1,0 +1,2 @@
+actuator S10, flow 56.10 L/min: v_ext 186.0 mm/s (2.37 s), v_ret 248.0 mm/s (1.77 s)
+minimum valve ramp for p <= 140.0 bar: extension 2.224 s, retraction 2.965 s

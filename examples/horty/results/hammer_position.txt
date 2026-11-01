@@ -1,0 +1,7 @@
+actuator winch, L 4942.50..10721.50 mm, 59 points
+  reported loads: actuator S10
+  F_max 95155.7 N at L=10721.50   F_min 13681.3 N at L=4942.50
+  p_max 189.31 bar at L=10721.50
+  checks: |F_vw-F_fd|/max|F| = 2.67e-10, |F_vw-F_eq|/max|F| = 2.45e-15
+  reduced mass 102082.9..255762.7 kg, natural frequency 3.01..4.76 Hz
+  Euler load at L_max 181474 N, safety factor 1.91

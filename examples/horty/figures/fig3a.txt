@@ -1,0 +1,14 @@
+size 82 80
+columns 1
+palette okabe-ito
+grid
+panel
+legend_columns 1
+legend_rows 3
+xlabel "Length of cylinder 10, L_{10} (mm)"
+ylabel "Force F_{10} (kN)"
+yrange -20 60 20
+series ../results/tilt.csv L_mm F_N yscale=0.001 label="virtual work" line=solid width=0.3
+series ../results/tilt.csv L_mm F_eq_N yscale=0.001 label="link equilibrium" line=none marker=circle-open every=11 width=0.3
+series ../results/tilt.csv L_mm F_fd_N yscale=0.001 label="energy differences" line=none marker=cross every=11 width=0.3
+hline 0 line=dotted

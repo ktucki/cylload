@@ -1,0 +1,7 @@
+actuator S19, L 1262.00..2262.00 mm, 101 points
+  F_max 7120.2 N at L=1482.00   F_min 7120.2 N at L=1692.00
+  p_max 25.18 bar at L=1482.00
+  checks: |F_vw-F_fd|/max|F| = 8.06e-10, |F_vw-F_eq|/max|F| = 8.94e-16
+  energy: integral F dL = 7120.218 J, Delta V = 7120.218 J (rel. diff 7.66e-15)
+  reduced mass 725.8..725.8 kg, natural frequency 15.22..31.24 Hz
+  Euler load at L_max 50903 N, safety factor 7.15

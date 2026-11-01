@@ -1,0 +1,7 @@
+actuator S8, L 698.00..1048.00 mm, 141 points
+  F_max 48569.5 N at L=698.00   F_min 9554.5 N at L=1048.00
+  p_max 61.84 bar at L=698.00
+  checks: |F_vw-F_fd|/max|F| = 2.17e-10, |F_vw-F_eq|/max|F| = 8.24e-16
+  energy: integral F dL = 9986.475 J, Delta V = 9986.475 J (rel. diff 1.27e-09)
+  reduced mass 16072.2..23712.9 kg, natural frequency 9.83..15.34 Hz
+  Euler load at L_max 578957 N, safety factor 11.92
