@@ -1,0 +1,10 @@
+PROJECT_NAME           = CylLoad
+PROJECT_NUMBER         = 1.1.0
+PROJECT_BRIEF          = "Hydraulic cylinder loads from the solid model of a machine"
+INPUT                  = include README.md docs
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = README.md
+OUTPUT_DIRECTORY       = docs/api
+GENERATE_LATEX         = NO
+EXTRACT_ALL            = YES
+QUIET                  = YES

@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "CylLoad: hydraulic cylinder loads from the solid model of a machine"
+version: 1.1.0
+date-released: 2026-11-01
+license: MIT
+repository-code: "https://github.com/ktucki/cylload"
+authors:
+  - family-names: Tucki
+    given-names: Karol
+    orcid: "https://orcid.org/0000-0001-7340-4100"
+    affiliation: "Warsaw University of Life Sciences - SGGW, Department of Production Engineering"
+keywords:
+  - hydraulic cylinder
+  - multibody statics
+  - virtual work
+  - STEP
+  - mass properties
+  - agricultural machinery

@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 3.20)
+project(cylload VERSION 1.1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+if(MSVC)
+  add_compile_options(/W4 /permissive- /utf-8)
+  add_compile_definitions(_USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS)
+else()
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+add_library(cylload_core
+  src/linalg.cpp src/model.cpp src/analysis.cpp src/montecarlo.cpp src/step.cpp src/brep.cpp src/dynamics.cpp src/svg.cpp)
+target_include_directories(cylload_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+add_executable(cylload app/main.cpp)
+target_link_libraries(cylload PRIVATE cylload_core)
+install(TARGETS cylload RUNTIME DESTINATION bin)
+
+option(CYLLOAD_BUILD_TESTS "Build unit and regression tests" ON)
+if(CYLLOAD_BUILD_TESTS)
+  enable_testing()
+  add_executable(cylload_tests tests/test_main.cpp)
+  target_link_libraries(cylload_tests PRIVATE cylload_core)
+  target_compile_definitions(cylload_tests PRIVATE CYLLOAD_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  add_test(NAME cylload_tests COMMAND cylload_tests)
+endif()
