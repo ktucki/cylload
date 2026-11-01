@@ -1,0 +1,8 @@
+# Synthetic test case: a single boom lifted by one cylinder (closed-form solution known)
+title Synthetic boom
+gravity 0 -9.81
+body boom
+revolute O ground boom 0 0
+actuator cyl ground 300 -400  boom 900 150  bore=80 rod=45 min=700 max=1200 mass=20
+mass arm  boom 1500 200 250 40
+mass tool boom 2900 300 120 5

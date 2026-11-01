@@ -1,0 +1,13 @@
+size 82 80
+columns 1
+palette okabe-ito
+grid
+panel
+legend_columns 1
+legend_rows 6
+xlabel "Folding cylinder length (mm)"
+ylabel "Pressure in the folding cylinder (bar)"
+xrange 1000 1600 100
+yrange 0 80 10
+series ../results/rotor.csv L_mm p_bar label="CylLoad" line=solid width=0.3
+point 1583 65.03 label="published maximum" marker=circle-open

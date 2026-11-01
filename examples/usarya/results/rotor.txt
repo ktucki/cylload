@@ -1,0 +1,7 @@
+actuator S, L 1013.00..1583.00 mm, 59 points
+  F_max -18449.0 N at L=1013.00   F_min -63787.3 N at L=1583.00
+  p_max 65.03 bar at L=1583.00
+  checks: |F_vw-F_fd|/max|F| = 1.54e-10, |F_vw-F_eq|/max|F| = 3.42e-16
+  energy: integral F dL = -22012.485 J, Delta V = -22012.485 J (rel. diff 2.21e-08)
+  reduced mass 10125.0..22871.8 kg, natural frequency 12.30..34.21 Hz
+  Euler load at L_max 399282 N, not loaded in compression

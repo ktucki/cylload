@@ -1,0 +1,7 @@
+actuator lift, L 1150.39..1890.39 mm, 75 points
+  F_max 228723.6 N at L=1850.39   F_min 209181.5 N at L=1290.39
+  p_max 145.61 bar at L=1850.39
+  checks: |F_vw-F_fd|/max|F| = 2.14e-10, |F_vw-F_eq|/max|F| = 2.80e-15
+  energy: integral F dL = 161844.356 J, Delta V = 161844.336 J (rel. diff 1.20e-07)
+  reduced mass 69627.6..201040.6 kg, natural frequency 4.83..10.26 Hz
+  Euler load at L_max 1475896 N, safety factor 6.45

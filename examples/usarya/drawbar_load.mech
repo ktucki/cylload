@@ -1,0 +1,19 @@
+# CleanField / Usarya SCS-100 stone picker - drawbar lifting with the load of the machine (side view).
+# Kinematics as drawbar.mech; two cylinders 100/50 in parallel are modelled as one with twice the piston
+# area. USARYA 2 expresses the weight of everything carried by the main frame by the hitch load V
+# (empty hopper, operating manual: V = 7650 kg). Here that weight is a constant vertical force on the
+# frame, calibrated so that the hitch reaction equals V in the reference configuration (ED = 935 mm),
+# and the drawbar weight acts on the drawbar. Units mm, kg, N.
+title Usarya stone picker - drawbar lifting, empty hopper
+body frame drawbar hitch
+revolute A ground frame 0.0 0.0
+revolute B frame drawbar 4900.41877 881.09979
+revolute C drawbar hitch 6734.78192 0.0
+prismatic level ground hitch 6734.78192 0.0 1 0
+actuator ED frame 4811.05236 1378.12961 drawbar 5661.67337 989.96870 bore=141.421 rod=70.711 min=715 max=935
+mass drawbar drawbar 5817.60035 440.54990 315
+# V g at the hitch point and the drawbar weight taken back off the frame (moment balance about A). Only the
+# moment about A of this equivalent load enters the cylinder force; the reaction printed for joint A is not
+# the real axle load. With a constant frame weight the hitch reaction varies over the stroke (pose prints it).
+force hitchload frame 6734.78192 0.0 0 -75046.5
+force drawbar_on_frame frame 5817.60035 440.54990 0 3090.15

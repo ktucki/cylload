@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="82.000mm" height="80.000mm" viewBox="0 0 82.000 80.000" font-family="Arial, Helvetica, sans-serif" font-size="2.822">
+<rect width="100%" height="100%" fill="#fff"/>
+<defs><clipPath id="clip0"><rect x="9.451" y="2.000" width="69.549" height="43.133"/></clipPath></defs>
+<rect x="9.451" y="2.000" width="69.549" height="43.133" fill="none" stroke="#000" stroke-width="0.2"/>
+<line x1="9.451" y1="45.133" x2="9.451" y2="44.133" stroke="#000" stroke-width="0.2"/><text x="9.451" y="48.379" text-anchor="middle">1000</text>
+<line x1="21.042" y1="45.133" x2="21.042" y2="44.133" stroke="#000" stroke-width="0.2"/><text x="21.042" y="48.379" text-anchor="middle">1100</text>
+<line x1="32.634" y1="45.133" x2="32.634" y2="44.133" stroke="#000" stroke-width="0.2"/><text x="32.634" y="48.379" text-anchor="middle">1200</text>
+<line x1="44.225" y1="45.133" x2="44.225" y2="44.133" stroke="#000" stroke-width="0.2"/><text x="44.225" y="48.379" text-anchor="middle">1300</text>
+<line x1="55.817" y1="45.133" x2="55.817" y2="44.133" stroke="#000" stroke-width="0.2"/><text x="55.817" y="48.379" text-anchor="middle">1400</text>
+<line x1="67.408" y1="45.133" x2="67.408" y2="44.133" stroke="#000" stroke-width="0.2"/><text x="67.408" y="48.379" text-anchor="middle">1500</text>
+<line x1="79.000" y1="45.133" x2="79.000" y2="44.133" stroke="#000" stroke-width="0.2"/><text x="79.000" y="48.379" text-anchor="middle">1600</text>
+<line x1="9.451" y1="45.133" x2="10.451" y2="45.133" stroke="#000" stroke-width="0.2"/><text x="8.451" y="46.121" text-anchor="end">0</text>
+<line x1="9.451" y1="39.742" x2="10.451" y2="39.742" stroke="#000" stroke-width="0.2"/><text x="8.451" y="40.729" text-anchor="end">10</text>
+<line x1="9.451" y1="34.350" x2="10.451" y2="34.350" stroke="#000" stroke-width="0.2"/><text x="8.451" y="35.338" text-anchor="end">20</text>
+<line x1="9.451" y1="28.958" x2="10.451" y2="28.958" stroke="#000" stroke-width="0.2"/><text x="8.451" y="29.946" text-anchor="end">30</text>
+<line x1="9.451" y1="23.567" x2="10.451" y2="23.567" stroke="#000" stroke-width="0.2"/><text x="8.451" y="24.554" text-anchor="end">40</text>
+<line x1="9.451" y1="18.175" x2="10.451" y2="18.175" stroke="#000" stroke-width="0.2"/><text x="8.451" y="19.163" text-anchor="end">50</text>
+<line x1="9.451" y1="12.783" x2="10.451" y2="12.783" stroke="#000" stroke-width="0.2"/><text x="8.451" y="13.771" text-anchor="end">60</text>
+<line x1="9.451" y1="7.392" x2="10.451" y2="7.392" stroke="#000" stroke-width="0.2"/><text x="8.451" y="8.379" text-anchor="end">70</text>
+<line x1="9.451" y1="2.000" x2="10.451" y2="2.000" stroke="#000" stroke-width="0.2"/><text x="8.451" y="2.988" text-anchor="end">80</text>
+<text x="44.225" y="52.471" text-anchor="middle">Folding cylinder length (mm)</text>
+<text transform="translate(2.540,23.567) rotate(-90)" text-anchor="middle">Pressure in the folding cylinder (bar)</text>
+<line x1="21.042" y1="2.000" x2="21.042" y2="45.133" stroke="#d9d9d9" stroke-width="0.12"/><line x1="32.634" y1="2.000" x2="32.634" y2="45.133" stroke="#d9d9d9" stroke-width="0.12"/><line x1="44.225" y1="2.000" x2="44.225" y2="45.133" stroke="#d9d9d9" stroke-width="0.12"/><line x1="55.817" y1="2.000" x2="55.817" y2="45.133" stroke="#d9d9d9" stroke-width="0.12"/><line x1="67.408" y1="2.000" x2="67.408" y2="45.133" stroke="#d9d9d9" stroke-width="0.12"/><line x1="9.451" y1="39.742" x2="79.000" y2="39.742" stroke="#d9d9d9" stroke-width="0.12"/><line x1="9.451" y1="34.350" x2="79.000" y2="34.350" stroke="#d9d9d9" stroke-width="0.12"/><line x1="9.451" y1="28.958" x2="79.000" y2="28.958" stroke="#d9d9d9" stroke-width="0.12"/><line x1="9.451" y1="23.567" x2="79.000" y2="23.567" stroke="#d9d9d9" stroke-width="0.12"/><line x1="9.451" y1="18.175" x2="79.000" y2="18.175" stroke="#d9d9d9" stroke-width="0.12"/><line x1="9.451" y1="12.783" x2="79.000" y2="12.783" stroke="#d9d9d9" stroke-width="0.12"/><line x1="9.451" y1="7.392" x2="79.000" y2="7.392" stroke="#d9d9d9" stroke-width="0.12"/>
+<g clip-path="url(#clip0)">
+<path d="M10.958 34.992L12.097 34.603L13.236 34.219L14.375 33.841L15.514 33.468L16.653 33.099L17.793 32.733L18.932 32.370L20.071 32.010L21.210 31.652L22.349 31.296L23.488 30.941L24.628 30.587L25.767 30.234L26.906 29.881L28.045 29.528L29.184 29.176L30.323 28.823L31.463 28.469L32.602 28.115L33.741 27.760L34.880 27.403L36.019 27.045L37.158 26.685L38.298 26.323L39.437 25.959L40.576 25.592L41.715 25.223L42.854 24.851L43.994 24.475L45.133 24.096L46.272 23.714L47.411 23.327L48.550 22.936L49.689 22.541L50.829 22.141L51.968 21.735L53.107 21.323L54.246 20.906L55.385 20.482L56.524 20.050L57.664 19.612L58.803 19.165L59.942 18.709L61.081 18.244L62.220 17.768L63.359 17.282L64.499 16.783L65.638 16.272L66.777 15.746L67.916 15.204L69.055 14.646L70.194 14.068L71.334 13.470L72.473 12.849L73.612 12.202L74.751 11.526L75.890 10.817L77.029 10.071" fill="none" stroke="#0072B2" stroke-width="0.300" stroke-linejoin="round"/>
+</g>
+<circle cx="77.029" cy="10.071" r="0.595" fill="#fff" stroke="#000" stroke-width="0.2"/>
+<line x1="9.451" y1="56.140" x2="15.451" y2="56.140" stroke="#0072B2" stroke-width="0.300"/><text x="16.451" y="57.128">CylLoad</text>
+<circle cx="12.451" cy="60.373" r="0.595" fill="#fff" stroke="#000" stroke-width="0.2"/><text x="16.451" y="61.361">published maximum</text>
+</svg>

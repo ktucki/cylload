@@ -1,0 +1,17 @@
+# CleanField / Usarya SCS-100 stone picker - hopper lifting parallelogram (side view, two cylinders in parallel modelled
+# as one with twice the piston area). Geometry from drawings 345-9.0.0 and 345-4.0.0, masses as in
+# USARYA 2 (Agriculture, accepted). Origin at the lower-arm pivot RCa1; reference configuration:
+# hopper lowered. Frame tilt beta = 3.1325 deg (gravity rotated). Units mm, kg.
+title Usarya stone picker - hopper lifting, load 0 kg, frame tilt 3.1325 deg
+gravity -0.536069 -9.795342
+body low up cpl
+revolute RCa1 ground low 0.0 0.0
+revolute RCb1 ground up -435.7080 858.0096
+revolute L low cpl -1053.1080 -1383.3288
+revolute U up cpl -1488.8160 -525.3192
+actuator lift ground -79.3800 -549.6624 low -882.3528 -1373.4504 bore=141.421 rod=84.853 min=1150.388 max=1890.388 mass=164
+mass hopper cpl -441.3152 -842.8592 740
+mass frame cpl -1270.9620 -954.3240 100
+mass tipcyl cpl -875.8260 -445.2336 150
+mass upper_arms up -962.2620 166.3452 72
+mass lower_arms low -526.5540 -691.6644 96

@@ -1,0 +1,7 @@
+actuator tip, L 988.43..1588.43 mm, 75 points
+  F_max 26067.2 N at L=988.43   F_min 8817.9 N at L=1588.43
+  p_max 16.59 bar at L=988.43
+  checks: |F_vw-F_fd|/max|F| = 2.26e-10, |F_vw-F_eq|/max|F| = 8.37e-16
+  energy: integral F dL = 12704.268 J, Delta V = 12704.271 J (rel. diff 2.62e-07)
+  reduced mass 7841.4..33508.7 kg, natural frequency 14.67..44.38 Hz
+  Euler load at L_max 1008087 N, safety factor 38.67

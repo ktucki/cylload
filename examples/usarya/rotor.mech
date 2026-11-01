@@ -1,0 +1,11 @@
+# CleanField / Usarya SCS-100 stone picker - folding of the right working module (rotor section)
+# Geometry from the parametric kinematic model of the machine (Mathcad, "Parametryzacja zbieracza
+# kamieni"): Pp = (0, 0), Lp1 = (890, 0) module hinge, Sp at 460 mm under 135 deg (cylinder base),
+# PSRRp = Lp1 + 440 e1 - 224 e2 (cylinder eye on the module frame, e1 along the frame).
+# Reference configuration: cylinder length 1300 mm (chi = 0.948444 rad). Units mm, kg.
+title Usarya stone picker - folding of the working module
+body module
+revolute Lp1 ground module 890.0 0.0
+actuator S ground -325.26912 325.26912 module 964.49487 488.08454 bore=125 rod=56 min=1013 max=1583
+# working module 1880 kg, centre of mass a = 1060 mm along the frame, b = 435 mm (USARYA 2)
+mass module module 1861.36633 607.67792 1880

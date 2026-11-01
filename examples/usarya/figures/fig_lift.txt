@@ -1,0 +1,20 @@
+size 82 80
+columns 1
+palette okabe-ito
+grid
+panel
+legend_columns 1
+legend_rows 6
+xlabel "Lifting cylinder extension (mm)"
+ylabel "Pressure in the lifting cylinders (bar)"
+xrange 0 800 100
+yrange 0 200 25
+series ../results/lift_m6000_b0.csv L_mm p_bar xoffset=-1150.388 label="6 t, frame level" line=solid width=0.3
+series ../results/lift_m6000_b3.1325.csv L_mm p_bar xoffset=-1150.388 label="6 t, frame tilt 3.13°" line=dashed width=0.3
+series ../results/lift_m6000_b10.1929.csv L_mm p_bar xoffset=-1150.388 label="6 t, frame tilt 10.19°" line=dashdot width=0.3
+series ../results/lift_m0_b0.csv L_mm p_bar xoffset=-1150.388 label="empty hopper, frame level" line=solid width=0.3
+point 700 145.6 label="published maxima" marker=circle-open
+point 740 150.2 marker=circle-open
+point 740 159.2 marker=circle-open
+point 710 23.5 marker=circle-open
+hline 180 line=dotted label="relief valve 180 bar"

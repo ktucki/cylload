@@ -1,0 +1,13 @@
+# CleanField / Usarya SCS-100 stone picker - drawbar linkage that sets the frame tilt (side view)
+# Geometry from the parametric kinematic model of the machine (Mathcad, "Parametryzacja zbieracza
+# kamieni"): triangles BCD (BD 769, CD 1460, CB 2035 mm) and BDE (BD 769, BE 505 mm, BE normal to AB),
+# frame beam AB 4979 mm. A: tandem axle pivot, C: hitch point; A and C stay on one level line.
+# Reference configuration: drawbar cylinder ED = 935 mm (frame tilt 10.1929 deg). Units mm, kg.
+title Usarya stone picker - drawbar linkage
+body frame drawbar hitch
+revolute A ground frame 0.0 0.0
+revolute B frame drawbar 4900.41877 881.09979
+revolute C drawbar hitch 6734.78192 0.0
+prismatic level ground hitch 6734.78192 0.0 1 0
+actuator ED frame 4811.05236 1378.12961 drawbar 5661.67337 989.96870 bore=100 rod=50 min=715 max=935
+mass drawbar drawbar 5817.60035 440.54990 315
