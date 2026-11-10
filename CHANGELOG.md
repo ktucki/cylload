@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1 — 2026-11-10
+* Mechanism drawings: thin outlines of cylinders (0.16 mm), rods (0.13 mm) and joints (0.16 mm),
+  matching the line weights of the plots. Results are unchanged.
+
 ## 1.2.0 — 2026-11-10
 * New example `examples/cyklop`: boom of the T-214 grapple loader described only from the
   manufacturer's manual and parts catalogue (pins from a scale drawing, estimated arm masses).

@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "CylLoad: hydraulic cylinder loads from the solid model of a machine"
-version: 1.2.0
+version: 1.2.1
 date-released: 2026-11-10
 license: MIT
 repository-code: "https://github.com/ktucki/cylload"
