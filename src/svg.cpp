@@ -398,11 +398,11 @@ std::string render_svg(const Figure& f) {
             if (r.horizontal) {
                 const double y = mapy(r.value);
                 o << "<line x1=\"" << fmt(X0) << "\" y1=\"" << fmt(y) << "\" x2=\"" << fmt(X1) << "\" y2=\"" << fmt(y)
-                  << "\" stroke=\"" << r.color << "\" stroke-width=\"0.22\"" << dash(r.line, 0.22) << "/>\n";
+                  << "\" stroke=\"" << r.color << "\" stroke-width=\"0.16\"" << dash(r.line, 0.16) << "/>\n";
             } else {
                 const double x = mapx(r.value);
                 o << "<line x1=\"" << fmt(x) << "\" y1=\"" << fmt(Y0) << "\" x2=\"" << fmt(x) << "\" y2=\"" << fmt(Y1)
-                  << "\" stroke=\"" << r.color << "\" stroke-width=\"0.22\"" << dash(r.line, 0.22) << "/>\n";
+                  << "\" stroke=\"" << r.color << "\" stroke-width=\"0.16\"" << dash(r.line, 0.16) << "/>\n";
             }
         }
         // series
@@ -724,9 +724,9 @@ std::string draw_mechanism(const Kinematics& kin, const std::vector<Pose>& poses
         const std::string ds = main_pose ? "" : " stroke-dasharray=\"1.2,0.8\"";
         const double lw = main_pose ? 0.35 : 0.18;
         o << "<g>\n";
-        // ground: one base line under all ground joints (not when a sketch draws the frame itself)
+        // ground: one base line under all ground joints (not when the solid model or a sketch draws the frame itself)
         bool frame_drawn = false;
-        for (const auto& pt : opt.parts) frame_drawn = frame_drawn || (pt.body == 0 && pt.actuator < 0 && pt.faces.empty());
+        for (const auto& pt : opt.parts) frame_drawn = frame_drawn || (pt.body == 0 && pt.actuator < 0);
         if (main_pose && !frame_drawn) {
             std::vector<P2> g;
             for (const auto& j : m.revolutes)

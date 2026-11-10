@@ -9,10 +9,10 @@ xlabel "Tipping cylinder extension (mm)"
 ylabel "Pressure in the tipping cylinders (bar)"
 xrange 0 600 100
 yrange 0 200 25
-series ../results/tip_m6000_b0.csv L_mm p_bar xoffset=-988.435 label="6 t, frame level" line=solid width=0.3
-series ../results/tip_m6000_b3.1325.csv L_mm p_bar xoffset=-988.435 label="6 t, frame tilt 3.13°" line=dashed width=0.3
-series ../results/tip_m6000_b10.1929.csv L_mm p_bar xoffset=-988.435 label="6 t, frame tilt 10.19°" line=dashdot width=0.3
-series ../results/tip_m0_b0.csv L_mm p_bar xoffset=-988.435 label="empty hopper, frame level" line=solid width=0.3
+series ../results/tip_m6000_b0.csv L_mm p_bar xoffset=-988.435 label="6 t, frame level" line=solid width=0.16
+series ../results/tip_m6000_b3.1325.csv L_mm p_bar xoffset=-988.435 label="6 t, frame tilt 3.13°" line=dashed width=0.16
+series ../results/tip_m6000_b10.1929.csv L_mm p_bar xoffset=-988.435 label="6 t, frame tilt 10.19°" line=dashdot width=0.16
+series ../results/tip_m0_b0.csv L_mm p_bar xoffset=-988.435 label="empty hopper, frame level" line=solid width=0.16
 point 0 143.8 label="published maxima" marker=circle-open
 point 0 146.7 marker=circle-open
 point 0 151.7 marker=circle-open

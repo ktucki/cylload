@@ -8,7 +8,7 @@ legend_rows 5
 xlabel "Hammer position s_{b} (m)"
 ylabel "Pressure p_{10}, mast horizontal (bar)"
 band ../results/monte_carlo_hammer.csv s_b_m p5_bar p95_bar label="Monte Carlo P5–P95" color=#0072B2 opacity=0.18
-series ../results/hammer_position.csv L_mm p_bar xscale=0.001 xoffset=-4.9425 label="solid-model properties" line=solid width=0.3
-series ../results/hammer_position_outline.csv L_mm p_bar xscale=0.001 xoffset=-4.9425 label="bounding-box centres" line=dashed width=0.3
+series ../results/hammer_position.csv L_mm p_bar xscale=0.001 xoffset=-4.9425 label="solid-model properties" line=solid width=0.16
+series ../results/hammer_position_outline.csv L_mm p_bar xscale=0.001 xoffset=-4.9425 label="bounding-box centres" line=dashed width=0.16
 point 4.02 140 label="published threshold" marker=circle-open
 hline 140 line=dotted label="140 bar"

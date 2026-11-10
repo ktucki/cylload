@@ -7,8 +7,8 @@ legend_columns 1
 legend_rows 5
 xlabel "Mast inclination from vertical θ (°)"
 ylabel "Pressure p_{10} on the loaded side (bar)"
-series ../results/tilt.csv rot_W_deg p_bar label="solid-model properties" line=solid width=0.3
-series ../results/tilt_outline.csv rot_W_deg p_bar label="bounding-box centres" line=dashed width=0.3
+series ../results/tilt.csv rot_W_deg p_bar label="solid-model properties" line=solid width=0.16
+series ../results/tilt_outline.csv rot_W_deg p_bar label="bounding-box centres" line=dashed width=0.16
 point -90.618 108.4 label="published values" marker=circle-open color=#000
 point -90.618 101.1 marker=circle-open
 hline 140 line=dotted label="140 bar"

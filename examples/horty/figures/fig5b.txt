@@ -8,7 +8,7 @@ legend_rows 5
 xlabel "Mast inclination from vertical θ (°)"
 ylabel "Local minimum ramp time t_{r}^{*} (s)"
 yrange 0 8 1
-series ../results/map_tilt_hammer.csv rot_W_deg tr_ret_s where=Ly_mm:4942.5 label="s_{b} = 0 m" line=solid marker=circle-open every=16 width=0.3
-series ../results/map_tilt_hammer.csv rot_W_deg tr_ret_s where=Ly_mm:7832 label="s_{b} = 2.89 m" line=solid width=0.3
-series ../results/map_tilt_hammer.csv rot_W_deg tr_ret_s where=Ly_mm:8928.017241 label="s_{b} = 3.99 m" line=dashed width=0.3
-series ../results/map_tilt_hammer.csv rot_W_deg tr_ret_s where=Ly_mm:10721.5 label="s_{b} = 5.78 m" line=dashdot width=0.3
+series ../results/map_tilt_hammer.csv rot_W_deg tr_ret_s where=Ly_mm:4942.5 label="s_{b} = 0 m" line=solid marker=circle-open every=16 width=0.16
+series ../results/map_tilt_hammer.csv rot_W_deg tr_ret_s where=Ly_mm:7832 label="s_{b} = 2.89 m" line=solid width=0.16
+series ../results/map_tilt_hammer.csv rot_W_deg tr_ret_s where=Ly_mm:8928.017241 label="s_{b} = 3.99 m" line=dashed width=0.16
+series ../results/map_tilt_hammer.csv rot_W_deg tr_ret_s where=Ly_mm:10721.5 label="s_{b} = 5.78 m" line=dashdot width=0.16
