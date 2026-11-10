@@ -3963,15 +3963,15 @@
 <path fill="none" stroke="#009E73" stroke-width="0.13" stroke-linejoin="round" stroke-linecap="round" d="M8.470 31.571L8.526 31.541L8.564 31.494L8.585 31.433L8.588 31.374"/>
 <g fill="#CDEBDD" stroke="none"></g>
 <path fill="none" stroke="#009E73" stroke-width="0.13" stroke-linejoin="round" stroke-linecap="round" d="M8.463 31.682L8.528 31.659L8.585 31.620L8.632 31.574L8.668 31.511L8.688 31.449"/>
-<polygon points="19.734,47.461 13.319,41.343 12.734,41.957 19.149,48.075 " fill="#fff" stroke="#000" stroke-width="0.280" stroke-linejoin="round"/>
-<polygon points="27.341,54.031 20.076,47.103 18.807,48.433 26.072,55.362 " fill="#D55E00" stroke="#000" stroke-width="0.350" stroke-linejoin="round"/>
-<polygon points="18.198,29.829 19.376,29.469 19.169,28.793 17.991,29.153 " fill="#fff" stroke="#000" stroke-width="0.280" stroke-linejoin="round"/>
-<polygon points="10.090,32.903 18.363,30.370 17.825,28.612 9.552,31.145 " fill="#D55E00" stroke="#000" stroke-width="0.350" stroke-linejoin="round"/>
-<circle cx="27.500" cy="49.200" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
-<circle cx="23.143" cy="40.620" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
-<circle cx="12.774" cy="39.958" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
-<circle cx="8.417" cy="31.378" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
-<circle cx="6.780" cy="29.349" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
+<polygon points="19.734,47.461 13.319,41.343 12.734,41.957 19.149,48.075 " fill="#fff" stroke="#000" stroke-width="0.130" stroke-linejoin="round"/>
+<polygon points="27.341,54.031 20.076,47.103 18.807,48.433 26.072,55.362 " fill="#D55E00" stroke="#000" stroke-width="0.160" stroke-linejoin="round"/>
+<polygon points="18.198,29.829 19.376,29.469 19.169,28.793 17.991,29.153 " fill="#fff" stroke="#000" stroke-width="0.130" stroke-linejoin="round"/>
+<polygon points="10.090,32.903 18.363,30.370 17.825,28.612 9.552,31.145 " fill="#D55E00" stroke="#000" stroke-width="0.160" stroke-linejoin="round"/>
+<circle cx="27.500" cy="49.200" r="0.65" fill="#fff" stroke="#000" stroke-width="0.16"/>
+<circle cx="23.143" cy="40.620" r="0.65" fill="#fff" stroke="#000" stroke-width="0.16"/>
+<circle cx="12.774" cy="39.958" r="0.65" fill="#fff" stroke="#000" stroke-width="0.16"/>
+<circle cx="8.417" cy="31.378" r="0.65" fill="#fff" stroke="#000" stroke-width="0.16"/>
+<circle cx="6.780" cy="29.349" r="0.65" fill="#fff" stroke="#000" stroke-width="0.16"/>
 <circle cx="26.706" cy="54.697" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/><circle cx="13.026" cy="41.650" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/>
 <circle cx="9.821" cy="32.024" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/><circle cx="19.273" cy="29.131" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/>
 </g>

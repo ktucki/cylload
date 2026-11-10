@@ -923,8 +923,8 @@ std::string draw_mechanism(const Kinematics& kin, const std::vector<Pose>& poses
                 o << "\" fill=\"" << fill << "\" stroke=\"#000\" stroke-width=\"" << fmt(sw) << "\" stroke-linejoin=\"round\"" << ds << "/>\n";
             };
             if (!from_model) {
-                poly(E, B, rw, "#fff", lw * 0.8);
-                poly(A, E, hw, colour ? "#D55E00" : "#fff", lw);
+                poly(E, B, rw, "#fff", main_pose ? 0.13 : 0.08);  // thin outlines like the plot lines
+                poly(A, E, hw, colour ? "#D55E00" : "#fff", main_pose ? 0.16 : 0.1);
             }
             seg_obst(A, B);
             for (double sg : {1.0, -1.0}) seg_obst({A.x + nn.x * hw * sg, A.y + nn.y * hw * sg}, {E.x + nn.x * hw * sg, E.y + nn.y * hw * sg});
@@ -943,7 +943,7 @@ std::string draw_mechanism(const Kinematics& kin, const std::vector<Pose>& poses
         // joints and pins
         for (const auto& j : m.revolutes) {
             const Vec2 q = kin.point(s, j.body_b, j.p);
-            o << "<circle cx=\"" << fmt(X(q)) << "\" cy=\"" << fmt(Y(q)) << "\" r=\"0.65\" fill=\"#fff\" stroke=\"#000\" stroke-width=\"0.22\"/>\n";
+            o << "<circle cx=\"" << fmt(X(q)) << "\" cy=\"" << fmt(Y(q)) << "\" r=\"0.65\" fill=\"#fff\" stroke=\"#000\" stroke-width=\"0.16\"/>\n";
             obst.push_back({X(q), Y(q)});
             if (labels && main_pose) {
                 Lbl l{j.name, {X(q), Y(q)}, {}, {}};
