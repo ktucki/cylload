@@ -1,0 +1,7 @@
+actuator S10, L 758.00..1198.00 mm, 177 points
+  F_max 50838.9 N at L=758.00   F_min -17958.1 N at L=1198.00
+  p_max 101.14 bar at L=758.00
+  checks: |F_vw-F_fd|/max|F| = 2.48e-10, |F_vw-F_eq|/max|F| = 2.15e-15
+  energy: integral F dL = 6686.315 J, Delta V = 6686.314 J (rel. diff 1.69e-08)
+  reduced mass 49232.9..116332.0 kg, natural frequency 3.71..4.46 Hz
+  Euler load at L_max 181474 N, safety factor 3.57

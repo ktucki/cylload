@@ -40,7 +40,39 @@ for %%M in (0 6000) do for %%T in (0 3.1325 10.1929) do (
 "%CYLLOAD%" draw %U%\hopper.mech lift=1150.388 tip=988.435 --sketch %U%\hopper_sketch.txt --scale 10 --ybottom -1760 --color yes --font_pt 7 --items no --view -2200,-1760,1750,4420 --out %RU%\hopper_lowered.svg
 "%CYLLOAD%" draw %U%\hopper.mech lift=1890.388 tip=988.435 --sketch %U%\hopper_sketch.txt --scale 10 --ybottom -1760 --color yes --font_pt 7 --items no --view -2250,-1760,1750,4420 --out %RU%\hopper_raised.svg
 "%CYLLOAD%" draw %U%\hopper.mech lift=1890.388 tip=1588.435 --sketch %U%\hopper_sketch.txt --scale 10 --ybottom -1760 --color yes --font_pt 7 --items no --view -3150,-1760,1750,4420 --out %RU%\hopper_tipped.svg
+rem version 1.2: reduced mass without the cylinder pin masses, damping, Monte Carlo convergence
+for %%V in ("" "_outline") do (
+  "%CYLLOAD%" ramp  %E%\tower%%~V_mr_nopins.mech S10 S8=973 --n 177 --flow 56.1 --plim 140 --out %R%\ramp_tilt%%~V_mr_nopins.csv 2> %R%\ramp_tilt%%~V_mr_nopins.txt
+  "%CYLLOAD%" sweep %E%\tower%%~V_mr_nopins.mech S10 S8=973 --n 177 --out %R%\tilt%%~V_mr_nopins.csv 2> %R%\tilt%%~V_mr_nopins.txt
+)
+for %%Z in (0 0.05 0.1 0.2) do "%CYLLOAD%" simulate %E%\tower.mech S10 S8=973 S10=978 --flow 11.25 --damping %%Z --ramps 0.0001,0.05,0.1,0.2,0.3,0.5,0.75,1.0 --out %R%\ramp_scan_zeta%%Z.csv 2> nul
+for %%N in (500 1000 2000 4000 8000) do "%CYLLOAD%" mc %E%\tower.mech %E%\tower_mc.txt --samples %%N --bootstrap 200 --sensitivity %R%\sensitivity_N%%N.csv > nul 2>&1
+for %%H in (0000 0500 1000 1500 2000) do (
+  "%CYLLOAD%" sweep %U%\cases\drawbar_frame_h%%H.mech ED --from 737 --to 935 --n 45 --out %RU%\drawbar_frame_h%%H.csv 2> %RU%\drawbar_frame_h%%H.txt
+  "%CYLLOAD%" pose %U%\cases\drawbar_frame_h%%H.mech ED=737 > %RU%\drawbar_frame_h%%H_737.txt
+)
+call :excavator
 echo results written to %R%
+goto :eof
+:excavator
+set X=examples\excavator
+set RX=%X%\results
+if not exist %RX% mkdir %RX%
+"%CYLLOAD%" step %X%\excavator.step --level 1 --out %RX%\step_level1.csv 2> %RX%\step_level1.txt
+"%CYLLOAD%" step %X%\excavator.step --level 1 --bspline fan --out %RX%\step_level1_fan.csv 2> %RX%\step_level1_fan.txt
+"%CYLLOAD%" masstable %X%\excavator.step %X%\excavator_assign.csv --level 1 --remainder 60 --out %RX%\excavator_masses.csv 2> %RX%\masstable.txt
+"%CYLLOAD%" info  %X%\excavator.mech > %RX%\info.txt
+"%CYLLOAD%" pose  %X%\excavator.mech > %RX%\pose_reference.txt
+"%CYLLOAD%" sweep %X%\excavator.mech S1 --n 91 --out %RX%\sweep_S1.csv 2> %RX%\sweep_S1.txt
+"%CYLLOAD%" sweep %X%\excavator.mech S2 --n 76 --out %RX%\sweep_S2.csv 2> %RX%\sweep_S2.txt
+"%CYLLOAD%" sweep %X%\excavator.mech S3 --n 91 --out %RX%\sweep_S3.csv 2> %RX%\sweep_S3.txt
+"%CYLLOAD%" ramp %X%\excavator.mech S1 --n 91 --flow 120 --plim 250 --out %RX%\ramp_S1.csv 2> %RX%\ramp_S1.txt
+"%CYLLOAD%" simulate %X%\excavator.mech S1 --flow 120 --ramp 0.05 --dir ext --out %RX%\simulate_S1.csv 2> %RX%\simulate_S1.txt
+"%CYLLOAD%" map %X%\excavator.mech S1 S2 --report S1 --nx 46 --ny 39 --flow 120 --out %RX%\map_boom_arm.csv 2> %RX%\map_boom_arm.txt
+"%CYLLOAD%" mc %X%\excavator.mech %X%\excavator_mc.txt --out %RX%\monte_carlo.csv --sensitivity %RX%\sensitivity.csv 2> %RX%\monte_carlo.txt
+"%CYLLOAD%" draw %X%\excavator.mech --step %X%\excavator.step --parts %X%\excavator_parts.csv --level 1 --color yes --scale 25 --ybottom -1450 --height 100 --view -500,-1450,4900,2350 --title "Reference pose" --out %RX%\excavator.svg
+"%CYLLOAD%" draw %X%\excavator.mech S1=2100 S2=1300 S3=1450 --step %X%\excavator.step --parts %X%\excavator_parts.csv --level 1 --color yes --scale 25 --ybottom -1450 --height 145 --view -500,-1450,5000,4300 --title "Boom raised, arm in, bucket curled" --out %RX%\excavator_raised.svg
+python examples\excavator\check_independent.py || echo (python with numpy not found: independent check not run)
 goto :eof
 :one
 set V=%1

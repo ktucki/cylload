@@ -2,6 +2,7 @@
 // Unit, verification and regression tests for cylload (no external framework).
 #include <cmath>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <sstream>
@@ -34,14 +35,14 @@ void near(double a, double b, double tol, const std::string& what) {
 void rel(double a, double b, double rtol, const std::string& what) { near(a, b, rtol * std::fabs(b), what); }
 
 void run(const char* name, const std::function<void()>& f) {
-    const int before = g_fail;
+    const int before = g_fail, checks_before = g_checks;
     try {
         f();
     } catch (const std::exception& e) {
         ++g_fail;
         std::printf("  FAIL: exception: %s\n", e.what());
     }
-    std::printf("[%s] %s\n", g_fail == before ? " ok " : "FAIL", name);
+    std::printf("[%s] %s (%d checks)\n", g_fail == before ? " ok " : "FAIL", name, g_checks - checks_before);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -142,8 +143,24 @@ void test_hydraulics() {
     rel(ramp_factor(kPi), 2 / kPi, 1e-12, "kappa(pi)");
     rel(ramp_factor(10), 0.2, 1e-14, "kappa(10)");
     double prev = 2;
-    for (double t = 0; t < 30; t += 0.01) { check(ramp_factor(t) <= prev + 1e-15, "kappa monotone"); prev = ramp_factor(t); }
+    bool mono = true;  // one check for the whole grid of 3000 points
+    for (double t = 0; t < 30; t += 0.01) { mono &= ramp_factor(t) <= prev + 1e-15; prev = ramp_factor(t); }
+    check(mono, "kappa non-increasing on a grid of 3000 points");
     rel(euler_load(c, 1000), kPi * kPi * 210000 * kPi * std::pow(40, 4) / 64 / 1e6, 1e-12, "Euler load");
+    // version 1.2: back-pressure in the unloaded chamber and separate dead volumes
+    c.p_back = 20;
+    rel(pressure_bar(c, 50000), 50000 / (kPi * 1600) * 10 + 20 * 1200.0 / 1600.0, 1e-14, "push pressure with back-pressure");
+    rel(pressure_bar(c, -20000), 20000 / (kPi * 1200) * 10 + 20 * 1600.0 / 1200.0, 1e-14, "pull pressure with back-pressure");
+    Hydraulics h2;
+    h2.dead_volume = 0.5;
+    h2.dead_volume_rod = 1.5;
+    rel(hydraulic_stiffness(c, h2, 900), 1e9 * (Ap * Ap / (5e-4 + Ap * 0.142) + Ar * Ar / (1.5e-3 + Ar * 0.298)), 1e-12,
+        "stiffness with different dead volumes");
+    Model hm = Model::from_string(
+        "body b\nrevolute O ground b 0 0\nactuator c ground 0 -500 b 300 0 bore=80 rod=40 min=500 max=900\n"
+        "mass m b 600 0 100 0\nhydraulics beta=1.2e9 dead_volume=0.4 dead_volume_rod=0.9 back_pressure=15\n");
+    check(hm.hydraulics.dead_volume == 0.4 && hm.hydraulics.dead_volume_rod == 0.9, "dead volumes parsed (dead_volume sets both, then rod side)");
+    check(hm.actuators[0].cyl.p_back == 15, "back_pressure copied to the cylinders");
 }
 
 // 4. Horty tower, simplified variant (outline centres, prism inertia): regression against the
@@ -413,6 +430,198 @@ void test_step_revolved() {
     check(n == 5, "all five test solids found");
 }
 
+// 6b. Version 1.2: B-spline faces integrated in their parameter domain (doubly curved bicubic face with
+//     interior knots, convex and concave rational fillets); version 1.1 replaced them by triangle fans.
+struct RefRow { std::string name; std::vector<double> v; };
+std::vector<RefRow> read_reference(const std::string& path) {
+    std::ifstream f(path);
+    std::vector<RefRow> out;
+    std::string line;
+    std::getline(f, line);
+    while (std::getline(f, line)) {
+        std::stringstream ss(line);
+        RefRow r;
+        std::string x;
+        std::getline(ss, r.name, ',');
+        while (std::getline(ss, x, ',')) r.v.push_back(std::stod(x));
+        out.push_back(r);
+    }
+    return out;
+}
+void test_step_bspline() {
+    const auto ref = read_reference(SRC + "/tests/data/bspline_reference.csv");
+    check(ref.size() == 3, "reference table present");
+    for (bool parametric : {true, false}) {
+        set_bspline_integration(parametric);
+        StepModel s = read_step(SRC + "/tests/data/bspline_solids.step", "", true);
+        int n = 0;
+        for (const auto& r : ref)
+            for (const auto& o : s.occurrences) {
+                if (o.path.back() != r.name) continue;
+                ++n;
+                const auto& v = r.v;
+                if (parametric) {
+                    const double L = std::cbrt(v[0]), tr = v[4] + v[7] + v[9];
+                    rel(o.volume, v[0], 1e-9, r.name + " volume");
+                    for (int i = 0; i < 3; ++i) near(o.centroid[i], v[1 + i], 1e-8 * L, r.name + " centroid");
+                    const int idx[6][2] = {{0, 0}, {0, 1}, {0, 2}, {1, 1}, {1, 2}, {2, 2}};
+                    for (int k = 0; k < 6; ++k) near(o.cov[3 * idx[k][0] + idx[k][1]], v[4 + k], 1e-8 * tr, r.name + " second moment");
+                    check(o.faces_parametric == 1 && o.faces_triangulated == 0, r.name + ": B-spline face integrated in (u, v)");
+                    check(o.volume_check < 1e-9 && o.moment_check < 1e-9, r.name + ": field consistency");
+                } else {
+                    // the version 1.1 fans miss the curvature of the face interior: errors of about 1-2 %
+                    const double e = std::fabs(o.volume - v[0]) / v[0];
+                    check(e > 5e-3 && e < 3e-2, r.name + ": triangle-fan volume error of 0.5-3 %");
+                    check(o.faces_triangulated == 1, r.name + ": B-spline face triangulated");
+                }
+            }
+        check(n == 3, "all three B-spline test solids found");
+    }
+    set_bspline_integration(true);
+}
+
+// STEP length units: the same solids written in mm, inch, m and without a unit.
+void test_step_units() {
+    std::ifstream f(SRC + "/tests/data/bspline_solids.step");
+    std::stringstream ss;
+    ss << f.rdbuf();
+    const std::string mm = ss.str(), unit = "#4 = (LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT(.MILLI.,.METRE.));";
+    check(mm.find(unit) != std::string::npos, "unit entity present in the test file");
+    set_bspline_integration(true);
+    const StepModel ref = read_step(SRC + "/tests/data/bspline_solids.step", "", true);
+    check(ref.length_unit == "mm" && ref.length_unit_mm == 1.0, "millimetre file recognised");
+    struct Case { std::string name, entity; double f; };
+    const std::vector<Case> cases = {
+        {"inch", "#4 = (CONVERSION_BASED_UNIT('INCH',#9001)LENGTH_UNIT()NAMED_UNIT(#9002));\n"
+                 "#9000 = (LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT(.MILLI.,.METRE.));\n"
+                 "#9001 = LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(25.4),#9000);\n"
+                 "#9002 = DIMENSIONAL_EXPONENTS(1.,0.,0.,0.,0.,0.,0.);", 1.0 / 25.4},
+        {"m", "#4 = (LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT($,.METRE.));", 1e-3},
+        {"none", "#4 = DIMENSIONAL_EXPONENTS(1.,0.,0.,0.,0.,0.,0.);", 1.0}};
+    for (const auto& c : cases) {
+        // same file with the coordinates divided by the unit, so the results must be equal in mm
+        std::string txt = mm;
+        txt.replace(txt.find(unit), unit.size(), c.entity);
+        if (c.f != 1.0) {
+            std::string out;
+            std::size_t p = 0;
+            while (true) {
+                const auto q = txt.find("CARTESIAN_POINT('',(", p);
+                if (q == std::string::npos) { out += txt.substr(p); break; }
+                const auto o = q + 20, e = txt.find(')', o);
+                out += txt.substr(p, o - p);
+                std::stringstream in(txt.substr(o, e - o));
+                std::string x;
+                bool first = true;
+                while (std::getline(in, x, ',')) {
+                    char buf[40];
+                    std::snprintf(buf, sizeof buf, "%.17g", std::stod(x) * c.f);
+                    out += (first ? "" : ",") + std::string(buf);
+                    first = false;
+                }
+                p = e;
+            }
+            txt = out;
+            // radii of circles and lengths of vectors are lengths too
+            for (const char* key : {"VECTOR(", "CIRCLE(", "CYLINDRICAL_SURFACE(", "CONICAL_SURFACE(", "SPHERICAL_SURFACE(", "TOROIDAL_SURFACE("}) {
+                std::size_t k = 0;
+                while ((k = txt.find(key, k)) != std::string::npos) {
+                    const auto e = txt.find(");", k);
+                    auto c1 = txt.rfind(',', e);
+                    const double v = std::stod(txt.substr(c1 + 1, e - c1 - 1));
+                    char buf[40];
+                    std::snprintf(buf, sizeof buf, "%.17g", v * c.f);
+                    txt.replace(c1 + 1, e - c1 - 1, buf);
+                    k = e;
+                }
+            }
+        }
+        const std::string path = (std::filesystem::temp_directory_path() / ("cylload_units_" + c.name + ".step")).string();
+        std::ofstream(path) << txt;
+        const StepModel s = read_step(path, "", true);
+        if (c.name == "none") {
+            check(s.length_unit == "mm (assumed)", "missing unit reported as assumed mm");
+            continue;
+        }
+        check(std::fabs(s.length_unit_mm - 1.0 / c.f) < 1e-12 * s.length_unit_mm, "unit factor " + c.name);
+        for (std::size_t i = 0; i < ref.occurrences.size(); ++i) {
+            const auto& a = s.occurrences[i];
+            const auto& b = ref.occurrences[i];
+            rel(a.volume, b.volume, 1e-9, c.name + ": volume converted to mm3");
+            for (int k = 0; k < 3; ++k) near(a.centroid[k], b.centroid[k], 1e-7, c.name + ": centroid converted to mm");
+            rel(a.cov[0] + a.cov[4] + a.cov[8], b.cov[0] + b.cov[4] + b.cov[8], 1e-9, c.name + ": second moments converted");
+            rel(a.area, b.area, 1e-9, c.name + ": area converted");
+            for (int k = 0; k < 3; ++k) near(a.hi[k], b.hi[k], 1e-7, c.name + ": bounding box converted");
+        }
+    }
+}
+
+// Open example: synthetic backhoe attachment, exact assembly properties and three force routes.
+void test_excavator() {
+    std::ifstream f(SRC + "/examples/excavator/excavator_reference.csv");
+    std::string line;
+    std::vector<std::pair<std::string, std::vector<double>>> ref;
+    while (std::getline(f, line)) {
+        if (line.empty() || line[0] == '#' || line.rfind("assembly", 0) == 0) continue;
+        std::stringstream ss(line);
+        std::string name, x;
+        std::getline(ss, name, ',');
+        std::vector<double> v;
+        while (std::getline(ss, x, ',')) v.push_back(std::stod(x));
+        ref.push_back({name, v});
+    }
+    check(ref.size() == 13, "excavator reference table");
+    set_bspline_integration(true);
+    const StepModel sm = read_step(SRC + "/examples/excavator/excavator.step", "", true);
+    const auto groups = group_by_level(sm, 1);
+    std::size_t bs = 0;
+    for (const auto& [name, v] : ref) {
+        const auto g = union_by_prefix(groups, name);
+        const double V = v[1], L = std::cbrt(V), tr = v[5] + v[8] + v[10];
+        check(g.n_occurrences == static_cast<std::size_t>(v[0]), name + ": parts");
+        rel(g.mass.volume, V, 1e-7, name + ": volume");
+        for (int k = 0; k < 3; ++k) near(g.mass.centroid[k], v[2 + k], 1e-7 * L, name + ": centroid");
+        const int idx[6][2] = {{0, 0}, {0, 1}, {0, 2}, {1, 1}, {1, 2}, {2, 2}};
+        for (int k = 0; k < 6; ++k) near(g.mass.cov[3 * idx[k][0] + idx[k][1]], v[5 + k], 1e-7 * tr, name + ": second moment");
+        check(g.faces_triangulated == 0, name + ": no triangulated face");
+        bs += g.faces_parametric;
+    }
+    check(bs == 57, "57 B-spline faces integrated in their parameter domain");
+    Model m = Model::from_file(SRC + "/examples/excavator/excavator.mech");
+    Kinematics kin(m);
+    for (int k = 0; k < 3; ++k) {
+        const auto& a = m.actuators[k];
+        for (double t : {0.0, 0.25, 0.5, 0.75, 1.0}) {
+            Pose s = kin.reference();
+            auto Lv = s.lengths;
+            Lv[k] = a.cyl.lmin + t * (a.cyl.lmax - a.cyl.lmin);
+            s = kin.solve(s, Lv);
+            const auto fv = forces_virtual_work(kin, s);
+            const auto fe = statics(kin, s).force_eq;
+            for (int j = 0; j < 3; ++j) rel(fe[j], fv[j], 1e-9, "excavator: equilibrium vs virtual work");
+        }
+    }
+}
+
+// Bootstrap confidence intervals of the Monte Carlo estimators.
+void test_bootstrap() {
+    Model m = Model::from_file(SRC + "/examples/boom/boom.mech");
+    McSpec sp = McSpec::from_string(
+        "seed 11\nsamples 2000\nbootstrap 300\nscale k_arm item:arm 0.8 1.2\nmass m_tool item:tool 50 150\n"
+        "scale k_dummy group:none 0.9 1.1\noutput F cyl\n");
+    auto r = run_monte_carlo(m, sp);
+    const auto& st = r.pressure_stats[0];
+    check(st.p5_lo <= st.p5 && st.p5 <= st.p5_hi && st.p95_lo <= st.p95 && st.p95 <= st.p95_hi, "percentiles inside their intervals");
+    check(st.p95_hi - st.p95_lo < 0.05 * (st.max - st.min), "narrow interval for N = 2000");
+    for (int j = 0; j < 2; ++j)  // active inputs (the interval of an inactive one is bias-corrected towards zero)
+        check(r.first_order_lo[0][j] <= r.first_order[0][j] && r.first_order[0][j] <= r.first_order_hi[0][j], "S_i inside its interval");
+    // an input that does not act: S_i is only the estimator bias, about (bins - 1) / N
+    check(r.first_order[0][2] < 0.03 && r.first_order_lo[0][2] < 1e-3, "inactive input: S_i near its bias, interval reaches zero");
+    check(r.first_order_lo[0][1] > 0.3, "dominant input clearly non-zero");
+    sp.bootstrap = 0;
+    auto r0 = run_monte_carlo(m, sp);
+    check(std::isnan(r0.first_order_lo[0][0]), "no intervals without bootstrap");
+}
 
 // 8. Version 1.1: time-domain simulation, maps, sensitivity indices, figures.
 void test_simulation() {
@@ -438,6 +647,15 @@ void test_simulation() {
     o.flow_lpm = 14.8;
     o.t_ramp = 1.0;
     near(simulate(kin, o).dF_max / 1000, 5.17, 0.06, "simulated excess force, 14.8 L/min and 1 s");
+    // damping lowers the excess over the quasi-steady force (inertia and oscillation), so zeta = 0 is the bound
+    for (double tr : {0.1, 0.5, 1.0}) {
+        o.t_ramp = tr;
+        o.damping_ratio = 0.0;
+        const double d0 = simulate(kin, o).dF_max_osc;
+        o.damping_ratio = 0.1;
+        check(simulate(kin, o).dF_max_osc < d0, "damping lowers the excess force");
+    }
+    o.damping_ratio = 0.0;
     // with damping the oscillation after the ramp decays: compare the swing over the last period
     o.flow_lpm = 11.25;
     o.t_ramp = 0.0001;
@@ -580,6 +798,10 @@ int main() {
     run("Monte Carlo helpers", test_monte_carlo);
     run("STEP reader", test_step);
     run("STEP mass properties of solids of revolution", test_step_revolved);
+    run("STEP mass properties of solids with B-spline faces", test_step_bspline);
+    run("STEP length units (mm, inch, m, missing)", test_step_units);
+    run("open example: synthetic backhoe from STEP to forces", test_excavator);
+    run("Monte Carlo bootstrap confidence intervals", test_bootstrap);
     run("input validation", test_validation);
     run("time-domain simulation vs. ramp formula and published values", test_simulation);
     run("load and ramp-time map", test_map);

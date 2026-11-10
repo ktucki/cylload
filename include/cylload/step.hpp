@@ -25,7 +25,8 @@ struct StepOccurrence {
     double volume = 0;                 ///< [mm^3]
     std::array<double, 3> centroid{};  ///< volume centroid, root coordinates [mm]
     std::array<double, 9> cov{};       ///< int (r-c)(r-c)^T dV, root coordinates, row-major [mm^5]
-    std::size_t faces = 0, faces_triangulated = 0;
+    std::size_t faces = 0, faces_triangulated = 0, faces_parametric = 0;  ///< all, triangle fans, NURBS in (u, v)
+    double area = 0, area_triangulated = 0;  ///< surface area of all faces and of the triangulated faces [mm^2]
     double volume_check = 0;  ///< max relative difference of the volume from the x, y and z fields
     double moment_check = 0;  ///< same for the second moments (two fields each), relative to the trace
     std::vector<StepSolid> solids;  ///< drawing geometry (only with read_step(..., geometry = true))
@@ -48,7 +49,8 @@ struct StepGroup {
     std::array<double, 3> lo{}, hi{};
     std::array<double, 3> centre() const { return {(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2}; }
     MassProps mass;
-    std::size_t faces = 0, faces_triangulated = 0;
+    std::size_t faces = 0, faces_triangulated = 0, faces_parametric = 0;
+    double area = 0, area_triangulated = 0;
     double volume_check = 0, moment_check = 0;
 };
 
@@ -57,6 +59,8 @@ struct StepModel {
     std::size_t n_entities = 0;
     std::vector<StepOccurrence> occurrences;  ///< only occurrences with geometry
     std::size_t n_tree_nodes = 0;             ///< all occurrences in the tree
+    double length_unit_mm = 1.0;              ///< file length unit; all results are converted to mm
+    std::string length_unit = "mm";           ///< as read from the file ("mm (assumed)" if none is declared)
 };
 
 /// Read a STEP file; `root` selects the top assembly by product name (empty = the
@@ -69,6 +73,9 @@ StepModel read_step(const std::string& path, const std::string& root = "", bool 
 std::vector<StepGroup> group_by_level(const StepModel& m, std::size_t level);
 /// Union of all groups whose key starts with `prefix` (throws if none).
 StepGroup union_by_prefix(const std::vector<StepGroup>& groups, const std::string& prefix);
+/// B-spline surface faces are integrated in their parameter domain (default, `true`) or, as in
+/// versions up to 1.1, replaced by fans of triangles spanning their boundary (`false`).
+void set_bspline_integration(bool parametric);
 /// Decode STEP string escapes (\X2\...\X0\, \X\hh, '') to UTF-8.
 std::string decode_step_string(const std::string& s);
 

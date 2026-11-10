@@ -27,6 +27,7 @@ struct McOutput {
 struct McSpec {
     std::uint64_t seed = 2026;
     int samples = 1000;
+    int bootstrap = 1000;  ///< resamples for the confidence intervals (0 = none)
     std::vector<McVariable> vars;
     std::vector<McOutput> outputs;
     static McSpec from_file(const std::string& path);
@@ -35,6 +36,7 @@ struct McSpec {
 
 struct McStats {
     double mean = 0, min = 0, p5 = 0, p50 = 0, p95 = 0, max = 0;
+    double p5_lo = 0, p5_hi = 0, p95_lo = 0, p95_hi = 0;  ///< 95 % percentile bootstrap intervals
 };
 
 struct McResult {
@@ -47,6 +49,7 @@ struct McResult {
     /// first-order variance-based indices S_i = Var(E[Y|X_i]) / Var(Y), estimated from the
     /// sample with 20 equal-probability bins of each input
     std::vector<std::vector<double>> first_order;
+    std::vector<std::vector<double>> first_order_lo, first_order_hi;  ///< 95 % basic bootstrap intervals
     std::vector<std::vector<double>> src;      ///< standardised regression coefficients
     std::vector<double> r2;                    ///< coefficient of determination of that regression
 };

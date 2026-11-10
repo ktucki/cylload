@@ -101,6 +101,7 @@ McSpec McSpec::from_string(const std::string& text) {
             const auto& k = t[0];
             if (k == "seed") sp.seed = std::stoull(t.at(1));
             else if (k == "samples") sp.samples = std::stoi(t.at(1));
+            else if (k == "bootstrap") sp.bootstrap = std::stoi(t.at(1));
             else if (k == "scale" || k == "mass" || k == "length") {
                 // scale LABEL SELECTORS LO HI | mass LABEL SELECTORS LO HI | length LABEL ACTUATOR LO HI
                 if (t.size() != 5) throw std::runtime_error("usage: " + k + " LABEL SELECTORS LO HI");
@@ -341,6 +342,44 @@ McResult run_monte_carlo(const Model& base, const McSpec& spec) {
             X.push_back(xj);
         }
         res.first_order.push_back(s1);
+        // percentile bootstrap: resample the N runs with replacement and recompute the estimators
+        {
+            const std::size_t N = static_cast<std::size_t>(spec.samples), nv = spec.vars.size();
+            const int B = spec.bootstrap;
+            std::vector<double> lo(nv, NAN), hi(nv, NAN);
+            if (B > 0) {
+                Uniform br(spec.seed ^ 0x9E3779B97F4A7C15ULL ^ static_cast<std::uint64_t>(i));
+                const auto& yv = cyl ? p : f;
+                std::vector<std::vector<double>> sb(nv);
+                std::vector<double> b5, b95;
+                std::vector<double> yb(N), xb(N);
+                std::vector<std::size_t> pick(N);
+                for (int b = 0; b < B; ++b) {
+                    for (auto& k : pick) k = std::min(N - 1, static_cast<std::size_t>(br() * static_cast<double>(N)));
+                    for (std::size_t k = 0; k < N; ++k) yb[k] = yv[pick[k]];
+                    b5.push_back(percentile(yb, 5));
+                    b95.push_back(percentile(yb, 95));
+                    for (std::size_t j = 0; j < nv; ++j) {
+                        for (std::size_t k = 0; k < N; ++k) xb[k] = X[j][pick[k]];
+                        sb[j].push_back(first_order_index(xb, yb));
+                    }
+                }
+                auto& st = cyl ? res.pressure_stats.back() : res.force_stats.back();
+                st.p5_lo = percentile(b5, 2.5);
+                st.p5_hi = percentile(b5, 97.5);
+                st.p95_lo = percentile(b95, 2.5);
+                st.p95_hi = percentile(b95, 97.5);
+                // S_i: basic (reverse-percentile) interval. Resampling with replacement repeats
+                // points, which raises the binning bias of the estimator; reflecting the bootstrap
+                // distribution about the estimate removes that shift to first order.
+                for (std::size_t j = 0; j < nv; ++j) {
+                    lo[j] = std::max(0.0, 2.0 * s1[j] - percentile(sb[j], 97.5));
+                    hi[j] = std::max(0.0, 2.0 * s1[j] - percentile(sb[j], 2.5));
+                }
+            }
+            res.first_order_lo.push_back(lo);
+            res.first_order_hi.push_back(hi);
+        }
         double r2 = 0;
         res.src.push_back(standardized_regression(X, cyl ? p : f, r2));
         res.r2.push_back(r2);

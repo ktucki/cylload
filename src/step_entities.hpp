@@ -32,8 +32,11 @@ struct VolumeIntegrals {
     std::array<double, 3> ref{};
     /// [10], [11]: volume from the y and z fields; [12..14]: xx, yy, zz from other fields (checks)
     double v[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::size_t faces = 0, faces_triangulated = 0, solids = 0;
+    std::size_t faces = 0, faces_triangulated = 0, faces_parametric = 0, solids = 0;
+    double area = 0, area_fan = 0;  ///< surface area of all faces and of the triangulated faces [mm^2]
 };
+/// B-spline surface faces: integrate in the parameter domain (default) or replace by triangle fans.
+void set_parametric_bspline(bool on);
 /// Integrate all solids (MANIFOLD_SOLID_BREP, BREP_WITH_VOIDS) found in the given
 /// shape representations; throws on unsupported curve types.
 VolumeIntegrals integrate_solids(const Entities& e, const std::vector<long>& reps);

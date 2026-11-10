@@ -1,0 +1,7 @@
+actuator ED, L 737.00..935.00 mm, 45 points
+  F_max 324828.4 N at L=935.00   F_min 307560.6 N at L=737.00
+  p_max 206.79 bar at L=935.00
+  checks: |F_vw-F_fd|/max|F| = 1.20e-09, |F_vw-F_eq|/max|F| = 1.79e-15
+  energy: integral F dL = 62433.430 J, Delta V = 62433.430 J (rel. diff 5.20e-11)
+  reduced mass 86206.0..105392.1 kg, natural frequency 7.44..11.30 Hz
+  Euler load at L_max 2909468 N, safety factor 8.96

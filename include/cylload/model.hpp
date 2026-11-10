@@ -18,6 +18,7 @@ struct Cylinder {
     double lmin = 0.0;     ///< pin-to-pin length, fully retracted [mm]
     double lmax = 0.0;     ///< pin-to-pin length, fully extended [mm]
     double mass = 0.0;     ///< cylinder mass [kg]; half is lumped at each pin
+    double p_back = 0.0;   ///< back-pressure in the unloaded chamber [bar] (from `hydraulics back_pressure=`)
     double area_piston() const;  ///< [mm^2]
     double area_annulus() const; ///< [mm^2]
     double stroke() const { return lmax - lmin; }
@@ -69,8 +70,11 @@ struct ExternalForce {
 };
 
 struct Hydraulics {
-    double beta = 1.0e9;        ///< effective bulk modulus of oil [Pa]
-    double dead_volume = 0.3;   ///< dead volume on each side of the piston [L]
+    double beta = 1.0e9;        ///< effective bulk modulus of oil and hoses [Pa]
+    double dead_volume = 0.3;   ///< dead volume on the piston side [L] (`dead_volume=` sets both sides)
+    double dead_volume_rod = 0.3;  ///< dead volume on the rod side [L]
+    double back_pressure = 0.0;    ///< pressure in the unloaded chamber [bar], e.g. from a counterbalance valve
+    bool pin_masses_in_reduced_mass = true;  ///< `reduced_mass_pins=no` leaves the lumped cylinder masses out of m_r
 };
 
 /// Planar multibody model. Every body pose is (x, y, theta) relative to the

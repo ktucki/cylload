@@ -1,0 +1,63 @@
+exudyn 1.13.6 numpy 2.5.4 python 3.12.0rc3
+body boom     m =   958.9850 kg  CoG = ( 1623.346,   942.974) mm  J = 1154.99500 kg m2
+body arm      m =   365.3030 kg  CoG = ( 3409.044,  1010.754) mm  J =  232.05322 kg m2
+body bucket   m =  1213.0217 kg  CoG = ( 3986.237,  -767.793) mm  J =  166.02400 kg m2
+body rocker   m =    38.2354 kg  CoG = ( 3841.351,    51.081) mm  J =    0.25849 kg m2
+body link     m =    42.3689 kg  CoG = ( 3920.000,   -85.000) mm  J =    0.57598 kg m2
+mass matrix from body properties
+S1: Exudyn distance force sign relative to CylLoad (push positive): +1
+  S1 L= 1300.0  rot Exudyn  -21.249  -21.249  -21.249  -21.249  -21.249  CylLoad  -21.249  -21.249  -21.249  -21.249  -21.249  max drot 2.35e-09  joint residual 1.3e-15 m
+  S1 L= 1350.0  rot Exudyn  -17.563  -17.563  -17.563  -17.563  -17.563  CylLoad  -17.563  -17.563  -17.563  -17.563  -17.563  max drot 4.44e-09  joint residual 9.2e-16 m
+  S1 L= 1400.0  rot Exudyn  -13.915  -13.915  -13.915  -13.915  -13.915  CylLoad  -13.915  -13.915  -13.915  -13.915  -13.915  max drot 2.42e-09  joint residual 8.9e-16 m
+  S1 L= 1450.0  rot Exudyn  -10.286  -10.286  -10.286  -10.286  -10.286  CylLoad  -10.286  -10.286  -10.286  -10.286  -10.286  max drot 7.70e-10  joint residual 4.6e-16 m
+  S1 L= 1500.0  rot Exudyn   -6.662   -6.662   -6.662   -6.662   -6.662  CylLoad   -6.662   -6.662   -6.662   -6.662   -6.662  max drot 6.91e-11  joint residual 5.0e-16 m
+  S1 L= 1550.0  rot Exudyn   -3.026   -3.026   -3.026   -3.026   -3.026  CylLoad   -3.026   -3.026   -3.026   -3.026   -3.026  max drot 3.61e-10  joint residual 2.2e-16 m
+  S1 L= 1600.0  rot Exudyn    0.633    0.633    0.633    0.633    0.633  CylLoad    0.633    0.633    0.633    0.633    0.633  max drot 1.89e-11  joint residual 8.9e-16 m
+  S1 L= 1650.0  rot Exudyn    4.329    4.329    4.329    4.329    4.329  CylLoad    4.329    4.329    4.329    4.329    4.329  max drot 4.51e-10  joint residual 8.9e-16 m
+  S1 L= 1700.0  rot Exudyn    8.074    8.074    8.074    8.074    8.074  CylLoad    8.074    8.074    8.074    8.074    8.074  max drot 1.31e-10  joint residual 5.9e-16 m
+  S1 L= 1750.0  rot Exudyn   11.883   11.883   11.883   11.883   11.883  CylLoad   11.883   11.883   11.883   11.883   11.883  max drot 2.02e-09  joint residual 4.6e-16 m
+  S1 L= 1800.0  rot Exudyn   15.769   15.769   15.769   15.769   15.769  CylLoad   15.769   15.769   15.769   15.769   15.769  max drot 7.11e-10  joint residual 5.0e-16 m
+  S1 L= 1850.0  rot Exudyn   19.750   19.750   19.750   19.750   19.750  CylLoad   19.750   19.750   19.750   19.750   19.750  max drot 3.71e-10  joint residual 5.0e-16 m
+  S1 L= 1900.0  rot Exudyn   23.843   23.843   23.843   23.843   23.843  CylLoad   23.843   23.843   23.843   23.843   23.843  max drot 2.14e-10  joint residual 6.3e-16 m
+  S1 L= 1950.0  rot Exudyn   28.072   28.072   28.072   28.072   28.072  CylLoad   28.072   28.072   28.072   28.072   28.072  max drot 4.15e-09  joint residual 1.4e-15 m
+  S1 L= 2000.0  rot Exudyn   32.464   32.464   32.464   32.464   32.464  CylLoad   32.464   32.464   32.464   32.464   32.464  max drot 1.55e-09  joint residual 4.4e-16 m
+  S1 L= 2050.0  rot Exudyn   37.053   37.053   37.053   37.053   37.053  CylLoad   37.053   37.053   37.053   37.053   37.053  max drot 3.28e-09  joint residual 1.3e-15 m
+  S1 L= 2100.0  rot Exudyn   41.884   41.884   41.884   41.884   41.884  CylLoad   41.884   41.884   41.884   41.884   41.884  max drot 3.55e-09  joint residual 9.9e-16 m
+  S1 L= 2150.0  rot Exudyn   47.017   47.017   47.017   47.017   47.017  CylLoad   47.017   47.017   47.017   47.017   47.017  max drot 1.55e-09  joint residual 1.3e-15 m
+  S1 L= 2200.0  rot Exudyn   52.539   52.539   52.539   52.539   52.539  CylLoad   52.539   52.539   52.539   52.539   52.539  max drot 4.66e-10  joint residual 8.9e-16 m
+S2: Exudyn distance force sign relative to CylLoad (push positive): +1
+  S2 L= 1200.0  rot Exudyn   -0.000   21.367   21.367   21.367   21.367  CylLoad    0.000   21.367   21.367   21.367   21.367  max drot 2.66e-09  joint residual 4.4e-16 m
+  S2 L= 1250.0  rot Exudyn   -0.000   16.060   16.060   16.060   16.060  CylLoad    0.000   16.060   16.060   16.060   16.060  max drot 3.22e-10  joint residual 1.8e-15 m
+  S2 L= 1300.0  rot Exudyn   -0.000   10.904   10.904   10.904   10.904  CylLoad    0.000   10.904   10.904   10.904   10.904  max drot 1.75e-09  joint residual 9.0e-16 m
+  S2 L= 1350.0  rot Exudyn   -0.000    5.836    5.836    5.836    5.836  CylLoad    0.000    5.836    5.836    5.836    5.836  max drot 1.93e-10  joint residual 8.9e-16 m
+  S2 L= 1400.0  rot Exudyn   -0.000    0.805    0.805    0.805    0.805  CylLoad    0.000    0.805    0.805    0.805    0.805  max drot 4.46e-11  joint residual 4.7e-16 m
+  S2 L= 1450.0  rot Exudyn   -0.000   -4.228   -4.228   -4.228   -4.228  CylLoad    0.000   -4.228   -4.228   -4.228   -4.228  max drot 1.37e-10  joint residual 5.0e-16 m
+  S2 L= 1500.0  rot Exudyn   -0.000   -9.301   -9.301   -9.301   -9.301  CylLoad    0.000   -9.301   -9.301   -9.301   -9.301  max drot 1.53e-10  joint residual 4.5e-16 m
+  S2 L= 1550.0  rot Exudyn   -0.000  -14.451  -14.451  -14.451  -14.451  CylLoad    0.000  -14.451  -14.451  -14.451  -14.451  max drot 3.55e-09  joint residual 2.2e-16 m
+  S2 L= 1600.0  rot Exudyn   -0.000  -19.716  -19.716  -19.716  -19.716  CylLoad    0.000  -19.716  -19.716  -19.716  -19.716  max drot 2.69e-09  joint residual 4.4e-16 m
+  S2 L= 1650.0  rot Exudyn   -0.000  -25.136  -25.136  -25.136  -25.136  CylLoad    0.000  -25.136  -25.136  -25.136  -25.136  max drot 2.30e-09  joint residual 8.9e-16 m
+  S2 L= 1700.0  rot Exudyn   -0.000  -30.764  -30.764  -30.764  -30.764  CylLoad    0.000  -30.764  -30.764  -30.764  -30.764  max drot 1.81e-09  joint residual 4.5e-16 m
+  S2 L= 1750.0  rot Exudyn   -0.000  -36.662  -36.662  -36.662  -36.662  CylLoad    0.000  -36.662  -36.662  -36.662  -36.662  max drot 4.37e-09  joint residual 4.6e-16 m
+  S2 L= 1800.0  rot Exudyn   -0.000  -42.916  -42.916  -42.916  -42.916  CylLoad    0.000  -42.916  -42.916  -42.916  -42.916  max drot 2.33e-09  joint residual 9.0e-16 m
+  S2 L= 1850.0  rot Exudyn   -0.000  -49.650  -49.650  -49.650  -49.650  CylLoad    0.000  -49.650  -49.650  -49.650  -49.650  max drot 2.21e-09  joint residual 5.6e-16 m
+  S2 L= 1900.0  rot Exudyn   -0.000  -57.057  -57.057  -57.057  -57.057  CylLoad    0.000  -57.057  -57.057  -57.057  -57.057  max drot 3.98e-09  joint residual 4.5e-16 m
+  S2 L= 1950.0  rot Exudyn   -0.000  -65.479  -65.479  -65.479  -65.479  CylLoad   -0.000  -65.479  -65.479  -65.479  -65.479  max drot 2.81e-09  joint residual 2.2e-16 m
+S3: Exudyn distance force sign relative to CylLoad (push positive): +1
+  S3 L= 1050.0  rot Exudyn   -0.000    0.000   54.554   53.822   -2.219  CylLoad    0.000    0.000   54.554   53.822   -2.219  max drot 4.68e-09  joint residual 4.7e-16 m
+  S3 L= 1100.0  rot Exudyn   -0.000    0.000   39.603   39.440   -1.374  CylLoad    0.000    0.000   39.603   39.440   -1.374  max drot 3.06e-09  joint residual 4.7e-16 m
+  S3 L= 1150.0  rot Exudyn   -0.000    0.000   27.393   27.418   -0.892  CylLoad    0.000   -0.000   27.393   27.418   -0.892  max drot 2.40e-09  joint residual 4.4e-16 m
+  S3 L= 1200.0  rot Exudyn   -0.000    0.000   16.258   16.334   -0.518  CylLoad    0.000    0.000   16.258   16.334   -0.518  max drot 1.51e-09  joint residual 8.9e-16 m
+  S3 L= 1250.0  rot Exudyn   -0.000    0.000    5.525    5.570   -0.177  CylLoad    0.000   -0.000    5.525    5.570   -0.177  max drot 1.65e-10  joint residual 1.7e-16 m
+  S3 L= 1300.0  rot Exudyn   -0.000    0.000   -5.225   -5.287    0.172  CylLoad   -0.000    0.000   -5.225   -5.287    0.172  max drot 4.86e-10  joint residual 4.4e-16 m
+  S3 L= 1350.0  rot Exudyn   -0.000    0.000  -16.366  -16.629    0.572  CylLoad   -0.000    0.000  -16.366  -16.629    0.572  max drot 2.46e-09  joint residual 4.6e-16 m
+  S3 L= 1400.0  rot Exudyn   -0.000    0.000  -28.358  -28.979    1.096  CylLoad   -0.000    0.000  -28.358  -28.979    1.096  max drot 3.73e-09  joint residual 2.2e-16 m
+  S3 L= 1450.0  rot Exudyn   -0.000    0.000  -41.960  -43.304    1.942  CylLoad   -0.000    0.000  -41.960  -43.304    1.942  max drot 4.88e-09  joint residual 2.2e-16 m
+  S3 L= 1500.0  rot Exudyn   -0.000    0.000  -58.785  -62.450    4.228  CylLoad   -0.000   -0.000  -58.785  -62.450    4.228  max drot 4.24e-09  joint residual 5.0e-16 m
+
+CylLoad vs Exudyn, excavator example
+actuator  poses  max|dF|/max|F|  max|dm_r|/m_r  max|df_n|/f_n
+S1           91        4.84e-10       5.03e-10       3.70e-10
+S2           76        6.65e-11       1.09e-09       5.11e-10
+S3           91        1.22e-10       1.10e-08       5.31e-09
+bodies (rotation order): boom arm bucket rocker link
+GOTOWE

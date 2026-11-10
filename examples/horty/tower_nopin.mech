@@ -1,0 +1,41 @@
+# Horty AutoHammer pile driver - tower positioning mechanism (machine plane x-y, mm)
+# Joint coordinates measured in the 3-D model 366-1.0.0 (reference configuration:
+# lift cylinder 8 at 972.98 mm, tilt cylinder 10 at 1182.99 mm, mast vertical).
+# Element numbers follow patent application P.443257.
+title Horty AutoHammer tower (lift parallelogram + tilt triangle + mast slide)
+gravity 0 -9.81
+
+body AC BD CD W M hammer
+
+# lifting parallelogram A-B-C-D: crank 5 (AC), support 6 (BD), triangular bracket 7 (CD)
+revolute A ground AC   0.0      0.0
+revolute B ground BD  -325.0  -290.0
+revolute C AC CD      -556.7  1152.6
+revolute D BD CD      -881.7   862.6
+# tower bracket 9 (W) hinged on the triangular bracket at H
+revolute H CD W       -781.7  1412.6
+# mast 18 (M) slides along the tower; hammer slides along the mast
+prismatic mast   W M      -1150.0 2000.0  0 1
+prismatic hammer_slide M hammer -1206.0712 2837.4982 0 1
+
+# cylinders: actuator NAME BODY_A XA YA BODY_B XB YB bore= rod= min= max= mass=
+actuator S8  ground -270.0 -185.0  AC  -539.9  749.8  bore=100 rod=50 min=698  max=1048
+actuator S10 CD     -542.0 1233.2  W   -662.9 2410.0  bore=80  rod=40 min=758  max=1198
+# mast-slide cylinder 19: its own mass is listed in the mass table (body W);
+# axis parallel to the slide, reference length taken at mid-stroke
+actuator S19 W  -1150.0 1300.0  M  -1150.0 3062.0  bore=60 rod=40 min=1262 max=2262
+# hammer position along the mast (winch, no cylinder data): reference length 7837.5 mm
+actuator winch M -1206.0712 -5000.0  hammer -1206.0712 2837.4982
+
+masses tower_masses.csv
+hydraulics beta=1e9 dead_volume=0.3
+
+# drawing only (cylload draw): outlines from the STEP bounding boxes and element numbers of P.443257
+outline M      -1256.2 -758.8  -991.2 -758.8  -991.2 6424.2  -1256.2 6424.2
+outline hammer -1568.4 2135.5  -843.7 2135.5  -843.7 3539.5  -1568.4 3539.5
+label AC 5
+label BD 6
+label CD 7
+label W 9
+label M 18
+label hammer hammer

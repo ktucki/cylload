@@ -1,0 +1,8 @@
+build/
+build*/
+*.o
+*.obj
+.vs/
+out/
+docs/api/
+__pycache__/

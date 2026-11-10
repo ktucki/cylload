@@ -1,0 +1,16 @@
+# drawing only (cylload draw --step): assembly name prefix at level 1 of excavator.step -> link,
+# ground or cylinder barrel / rod (ACT.barrel, ACT.rod)
+prefix,body
+EX-105,ground
+EX-110,boom
+EX-160,boom
+EX-120,arm
+EX-130,bucket
+EX-140,rocker
+EX-150,link
+EX-171,S1.barrel
+EX-181,S1.rod
+EX-172,S2.barrel
+EX-182,S2.rod
+EX-173,S3.barrel
+EX-183,S3.rod

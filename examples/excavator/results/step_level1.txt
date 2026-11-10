@@ -1,0 +1,1 @@
+root 'EX-100 Backhoe attachment': 7667 entities, 45 tree nodes, 32 with geometry, length unit mm; 252 faces integrated (57 B-spline faces in their parameter domain, 0 triangulated = 0% of the area)

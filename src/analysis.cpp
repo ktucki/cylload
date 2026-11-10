@@ -138,7 +138,9 @@ StaticResult statics(const Kinematics& kin, const Pose& s) {
 }
 
 double pressure_bar(const Cylinder& c, double F) {
-    return F >= 0 ? F / c.area_piston() * 10.0 : -F / c.area_annulus() * 10.0;
+    // loaded chamber; a back-pressure in the other chamber adds p_back times the area ratio
+    const double Ap = c.area_piston(), Ar = c.area_annulus();
+    return F >= 0 ? F / Ap * 10.0 + c.p_back * Ar / Ap : -F / Ar * 10.0 + c.p_back * Ap / Ar;
 }
 
 double reduced_mass(const Kinematics& kin, const Pose& s, int k) {
@@ -147,6 +149,9 @@ double reduced_mass(const Kinematics& kin, const Pose& s, int k) {
     double mr = 0.0;
     for (const auto& mi : m.all_masses()) {
         if (mi.body == 0) continue;
+        if (!m.hydraulics.pin_masses_in_reduced_mass && mi.name.size() > 6 &&
+            (mi.name.compare(mi.name.size() - 6, 6, "/pin_a") == 0 || mi.name.compare(mi.name.size() - 6, 6, "/pin_b") == 0))
+            continue;
         Vec2 v = kin.point_rate(s, dq, k, mi.body, mi.c);
         const double w = dq(3 * (mi.body - 1) + 2, k) * 1000.0;  // rad per m of stroke
         mr += mi.m * (v[0] * v[0] + v[1] * v[1]) + mi.j * w * w;
@@ -156,8 +161,8 @@ double reduced_mass(const Kinematics& kin, const Pose& s, int k) {
 
 double hydraulic_stiffness(const Cylinder& c, const Hydraulics& h, double L) {
     const double Ap = c.area_piston() * 1e-6, Ar = c.area_annulus() * 1e-6;
-    const double x = (L - c.lmin) / 1000.0, s = c.stroke() / 1000.0, v0 = h.dead_volume * 1e-3;
-    return h.beta * (Ap * Ap / (v0 + Ap * x) + Ar * Ar / (v0 + Ar * (s - x)));
+    const double x = (L - c.lmin) / 1000.0, s = c.stroke() / 1000.0, v0 = h.dead_volume * 1e-3, v0r = h.dead_volume_rod * 1e-3;
+    return h.beta * (Ap * Ap / (v0 + Ap * x) + Ar * Ar / (v0r + Ar * (s - x)));
 }
 
 double ramp_factor(double tau) {

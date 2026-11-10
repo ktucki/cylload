@@ -46,7 +46,8 @@ SimResult simulate(const Kinematics& kin, const SimOptions& o, int stride) {
         tb.m.push_back(reduced_mass(kin, s, o.actuator));
     }
     const double A1 = c.area_piston() * 1e-6, A2 = c.area_annulus() * 1e-6, stroke = c.stroke() / 1000.0;
-    const double beta = m.hydraulics.beta, V0 = m.hydraulics.dead_volume * 1e-3, lmin = c.lmin / 1000.0;
+    const double beta = m.hydraulics.beta, V0 = m.hydraulics.dead_volume * 1e-3, V0r = m.hydraulics.dead_volume_rod * 1e-3;
+    const double lmin = c.lmin / 1000.0;
     const double Q = o.flow_lpm / 60000.0;
     const double v = o.dir >= 0 ? Q / A1 : Q / A2;
 
@@ -73,7 +74,7 @@ SimResult simulate(const Kinematics& kin, const SimOptions& o, int stride) {
         double Fs, mr, dm;
         tb.at(q[0] * 1000.0, Fs, mr, dm);
         const double z = q[0] - lmin;
-        const double V1 = V0 + A1 * z, V2 = V0 + A2 * (stroke - z);
+        const double V1 = V0 + A1 * z, V2 = V0r + A2 * (stroke - z);
         const double Fh = q[2] * A1 - q[3] * A2;
         d[0] = q[1];
         d[1] = (Fh - Fs - cdamp * q[1] - 0.5 * dm * q[1] * q[1]) / mr;
@@ -87,6 +88,10 @@ SimResult simulate(const Kinematics& kin, const SimOptions& o, int stride) {
         tb.at(y[0] * 1000.0, Fs, mr, dm);
         const double dF = y[2] * A1 - y[3] * A2 - Fs;
         r.dF_max = std::max(r.dF_max, std::fabs(dF));
+        {   // excess over the quasi-steady force including the damping drag at the commanded velocity
+            const double ramp = o.t_ramp > 0 ? std::min(t / o.t_ramp, 1.0) : 1.0;
+            r.dF_max_osc = std::max(r.dF_max_osc, std::fabs(dF - cdamp * o.dir * v * ramp));
+        }
         r.p_peak = std::max({r.p_peak, y[2] / 1e5, y[3] / 1e5});
         if (i % stride == 0) r.history.push_back({t, y[0] * 1000.0, y[1] * 1000.0, y[2] / 1e5, y[3] / 1e5, dF});
         if (y[0] * 1000.0 <= c.lmin || y[0] * 1000.0 >= c.lmax) { r.hit_end = true; break; }

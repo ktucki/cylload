@@ -1,0 +1,9 @@
+name,body,group,mass_kg,x_mm,y_mm,J_kgm2,source
+"boom (EX-110)",boom,boom,806.0434057,1631.032251,928.1276053,1106.576506,"STEP EX-110: V=93490517 mm3 (733.90 kg at 7850 kg/m3), 9 occurrences, 0 faces triangulated"
+"arm (EX-120)",arm,arm,299.6828047,3441.558939,854.9189089,178.4636835,"STEP EX-120: V=32530719 mm3 (255.37 kg at 7850 kg/m3), 6 occurrences, 0 faces triangulated"
+"bucket (EX-130)",bucket,bucket,403.0217028,3837.988195,-783.4550042,57.61125943,"STEP EX-130: V=30698520 mm3 (240.98 kg at 7850 kg/m3), 5 occurrences, 0 faces triangulated"
+"rocker (EX-140)",rocker,linkage,11.3672788,3750,29.99999998,0.1163042664,"STEP EX-140: V=1215069 mm3 (9.54 kg at 7850 kg/m3), 2 occurrences, 0 faces triangulated"
+"link (EX-150)",link,linkage,42.36894825,3920,-84.9999997,0.575982492,"STEP EX-150: V=5111383 mm3 (40.12 kg at 7850 kg/m3), 1 occurrences, 0 faces triangulated"
+"valve block (EX-160; bought-in; data-sheet CoG)",boom,boom,39.2687813,1270,1030,0.9300500835,"STEP EX-160: V=8100000 mm3 (63.58 kg at 7850 kg/m3), 1 occurrences, 0 faces triangulated, centre of gravity given, J given"
+"hoses and lights",boom,boom,25.83472454,1700,1150,8.267111853,"given"
+"bucket fill (0.45 m3 at 1800 kg/m3; operating load)",bucket,payload,810,4060,-760,95,"given"

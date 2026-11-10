@@ -10,11 +10,14 @@ What it does:
 
 * **Mass properties from the solid model.** It reads the STEP (AP203/AP214) assembly
   tree with its placements and integrates the volume, centroid and inertia tensor of
-  every B-rep solid with the divergence theorem. Planes, cylinders, cones, spheres and
-  tori are integrated in their parameter domain (Green's theorem, Gauss–Legendre
-  quadrature along the edges); B-spline and other faces are approximated by a fan of
-  triangles on their boundary. Each part's result is checked with independent integration fields.
-  Assembly properties are scaled to the title-block masses (`cylload masstable`).
+  every B-rep solid with the divergence theorem. Planes, cylinders, cones, spheres, tori
+  and B-spline surfaces (also rational) are integrated in their parameter domain (Green's
+  theorem, Gauss–Legendre quadrature along the edges); other faces are approximated by a
+  fan of triangles on their boundary, and their number and share of the surface area are
+  reported. Each part's result is checked with independent integration fields. Lengths
+  are converted from the unit of the file (mm, cm, m, inch, foot).
+  Assembly properties are scaled to the title-block masses (`cylload masstable`); bought-in
+  parts can keep a centre of gravity from their data sheet.
 * **Kinematics of an arbitrary planar mechanism.** Rigid bodies are connected by
   revolute and prismatic joints and driven by cylinders (or other two-point actuators).
   Positions are solved by Newton's method with continuation, so the assembly branch is
@@ -28,7 +31,8 @@ What it does:
   side and the Euler buckling factor. It computes the reduced mass seen by each cylinder
   (Lagrange), the hydraulic stiffness and natural frequency, and the excess force for a
   linear valve-opening ramp. From these it derives the shortest ramp time that keeps the
-  pressure below a limit over the whole stroke.
+  pressure below a limit over the whole stroke. Back-pressure in the unloaded chamber and
+  different dead volumes on the two sides can be given.
 * **Time-domain verification.** A start-up simulation solves the Lagrange equation with
   the configuration-dependent reduced mass and oil compressibility, with the valve
   opening along a linear ramp. Maps over two actuators give pressures and local ramp
@@ -36,7 +40,8 @@ What it does:
 * **Uncertainty and sensitivity.** A Monte Carlo study runs over mass scales, masses,
   centroid shifts and positions of other actuators. It reports percentiles, Spearman
   rank correlations, first-order variance-based indices, standardised regression
-  coefficients and R². The random stream is reproducible across compilers.
+  coefficients and R², with bootstrap confidence intervals for the percentiles and the
+  indices. The random stream is reproducible across compilers.
 * **Publication figures.** SVG plots and mechanism drawings with thin lines, axes that
   end on a labelled tick and panel letters below the panels. Figures are black by
   default or use the colour-blind-safe Okabe–Ito palette, with an optional grid and
@@ -83,6 +88,13 @@ balance and the buckling factor. The input formats are described in
 
 ## Examples
 
+* `examples/excavator` is the open end-to-end example: a synthetic backhoe attachment
+  whose STEP file, mass table, mechanism, commands and expected results are all in the
+  repository (`examples/excavator/run.sh`, see
+  [examples/excavator/README.md](examples/excavator/README.md)). Its mass properties are
+  compared with exact values and its forces, reduced masses and natural frequencies with an
+  independent implementation in absolute coordinates (`check_independent.py`) and with the
+  multibody code Exudyn (`check_exudyn.py`).
 * `examples/boom` is a single boom lifted by one cylinder. The test suite compares it
   with the closed-form solution from the law of cosines; it agrees to 1e-12.
 * `examples/horty` is the positioning mechanism of the Horty AutoHammer orchard
@@ -104,11 +116,19 @@ balance and the buckling factor. The input formats are described in
   with published values (see [examples/usarya/README.md](examples/usarya/README.md)).
 
 `run_examples.sh` (or `run_examples.bat` on Windows) writes all results of the examples
-to `examples/horty/results` and `examples/usarya/results`.
+to `examples/*/results`. All tables and figures of the excavator example, and the Horty
+and stone-picker results that rest on the simplified data in this repository (statics,
+dynamics, ramp times, maps and Monte Carlo studies), can be regenerated in this way. The
+mass tables of the Horty example were produced from its STEP files, which are not
+distributed; `masstable` can therefore be rerun only for the excavator.
 
 ## Tests
 
-`cylload_tests` contains about 3350 checks:
+`cylload_tests` contains about 720 checks (each compared quantity counts as one check):
+* STEP solids with B-spline faces (bicubic with interior knots, rational fillets) against
+  exact integrals (`tests/data/gen_bspline.py`), and the same solids written in inch and metre;
+* the open excavator example against its exact assembly mass properties;
+* bootstrap intervals, back-pressure, separate dead volumes and damping;
 * the time-domain simulation against the ramp formula and the published simulation;
 * sensitivity indices against an analytic linear model;
 * closed-form solutions: boom, inclined slide, hydraulic formulas;
@@ -119,6 +139,16 @@ to `examples/horty/results` and `examples/usarya/results`.
 * the Monte Carlo helpers;
 * regressions against the published results of the Horty example;
 * the stone picker example against its closed-form kinematic model and published pressures.
+
+## Reporting problems and maintenance
+
+Please report bugs, questions and requests through the GitHub issue tracker
+(https://github.com/ktucki/cylload/issues), with the input files and the command line
+needed to reproduce the problem. Every change is tested on Linux, Windows and macOS by
+continuous integration before it is merged. Releases are numbered by semantic versioning,
+listed in [CHANGELOG.md](CHANGELOG.md) and archived on Zenodo with a DOI. The software is
+maintained by the Department of Production Engineering of the Warsaw University of Life
+Sciences – SGGW, where it is used in the design of agricultural machines.
 
 ## Licence and citation
 

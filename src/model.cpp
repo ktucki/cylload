@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 
@@ -139,6 +140,20 @@ void Model::validate() const {
     }
     for (const auto& p : prismatics)
         if (std::hypot(p.u[0], p.u[1]) < 1e-12) throw std::runtime_error("prismatic " + p.name + ": zero direction");
+    std::set<std::string> names;
+    auto unique = [&](const std::string& kind, const std::string& n) {
+        if (!names.insert(n).second) throw std::runtime_error(kind + " name '" + n + "' used twice");
+    };
+    for (const auto& r : revolutes) unique("joint", r.name);
+    for (const auto& p : prismatics) unique("joint", p.name);
+    for (const auto& a : actuators) unique("actuator", a.name);
+    for (const auto& a : actuators)
+        if (a.has_cylinder && (a.l_ref < a.cyl.lmin - 0.05 || a.l_ref > a.cyl.lmax + 0.05)) {
+            std::ostringstream os;
+            os << "cylinder " << a.name << ": pin distance in the reference configuration " << a.l_ref << " mm lies outside its stroke "
+               << a.cyl.lmin << ".." << a.cyl.lmax << " mm";
+            throw std::runtime_error(os.str());
+        }
 }
 
 void Model::load_masses_csv(const std::string& path) {
@@ -282,7 +297,14 @@ Model Model::from_string(const std::string& text, const std::string& base_dir) {
                 auto kv = keyvals(t, 1, w);
                 for (const auto& [key, val] : kv) {
                     if (key == "beta") m.hydraulics.beta = num(val, w);
-                    else if (key == "dead_volume") m.hydraulics.dead_volume = num(val, w);
+                    else if (key == "dead_volume") m.hydraulics.dead_volume = m.hydraulics.dead_volume_rod = num(val, w);
+                    else if (key == "dead_volume_piston") m.hydraulics.dead_volume = num(val, w);
+                    else if (key == "dead_volume_rod") m.hydraulics.dead_volume_rod = num(val, w);
+                    else if (key == "back_pressure") m.hydraulics.back_pressure = num(val, w);
+                    else if (key == "reduced_mass_pins") {
+                        if (val != "yes" && val != "no") throw std::runtime_error("reduced_mass_pins must be yes or no");
+                        m.hydraulics.pin_masses_in_reduced_mass = val == "yes";
+                    }
                     else throw std::runtime_error("unknown hydraulics key '" + key + "'");
                 }
             } else {
@@ -292,6 +314,7 @@ Model Model::from_string(const std::string& text, const std::string& base_dir) {
             throw std::runtime_error("model " + w + ": " + e.what());
         }
     }
+    for (auto& a : m.actuators) a.cyl.p_back = m.hydraulics.back_pressure;
     m.validate();
     return m;
 }

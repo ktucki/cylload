@@ -110,6 +110,7 @@ struct SimSample {
 struct SimResult {
     std::vector<SimSample> history;  ///< every `stride`-th step
     double dF_max = 0;               ///< max |hydraulic - static force| [N]
+    double dF_max_osc = 0;           ///< same, less the viscous force c v_cmd(t) at the commanded velocity [N]
     double dF_formula = 0;           ///< m v omega kappa(omega t_r) at the start position [N]
     double m0 = 0, f0 = 0, v = 0;    ///< reduced mass [kg], natural frequency [Hz], velocity [m/s] at the start
     double p_peak = 0;               ///< highest chamber pressure [bar]

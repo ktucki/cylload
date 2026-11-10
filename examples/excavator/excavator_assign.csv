@@ -1,0 +1,18 @@
+# Synthetic backhoe attachment: title-block masses (kg) of the level-1 assemblies of excavator.step
+# and the link they belong to. Centroids and moments of inertia come from the solid model, except
+# for the bought-in valve block, whose STEP file is only an envelope: its centre of gravity and
+# moment of inertia are taken from the (invented) supplier data sheet. Items without a prefix are
+# given directly. Rows with remainder=yes share the unidentified mass (--remainder) in proportion
+# to their masses, each at its own centre of gravity.
+name,body,group,mass_kg,prefix,remainder,x_mm,y_mm,J_kgm2
+boom (EX-110),boom,boom,780,EX-110,yes,,,
+arm (EX-120),arm,arm,290,EX-120,yes,,,
+bucket (EX-130),bucket,bucket,390,EX-130,yes,,,
+rocker (EX-140),rocker,linkage,11,EX-140,yes,,,
+link (EX-150),link,linkage,41,EX-150,yes,,,
+valve block (EX-160; bought-in; data-sheet CoG),boom,boom,38,EX-160,yes,1270,1030,0.9
+hoses and lights,boom,boom,25,,yes,1700,1150,8
+bucket fill (0.45 m3 at 1800 kg/m3; operating load),bucket,payload,810,,no,4060,-760,95
+boom cylinder (S1 = EX-171/181; mass set in excavator.mech),-,S1,95,,yes,,,
+arm cylinder (S2 = EX-172/182; mass set in excavator.mech),-,S2,75,,yes,,,
+bucket cylinder (S3 = EX-173/183; mass set in excavator.mech),-,S3,52,,yes,,,

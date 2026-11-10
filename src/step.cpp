@@ -224,6 +224,53 @@ StepModel read_step(const std::string& path, const std::string& root_name, bool 
     const Entities ent = parse(path);
     StepModel out;
     out.n_entities = ent.size();
+    // length unit of the geometry: SI_UNIT with a prefix, or an inch / foot conversion-based unit
+    {
+        // the units in force are those listed by GLOBAL_UNIT_ASSIGNED_CONTEXT; a conversion-based
+        // unit (inch, foot) refers to a further SI unit, which must not be counted as well
+        std::vector<long> used;
+        for (const auto& [id, e] : ent) {
+            const auto g = e.args.find("GLOBAL_UNIT_ASSIGNED_CONTEXT");
+            if (g == std::string::npos) continue;
+            const auto o = e.args.find('(', g), c = e.args.find(')', o);
+            for (long r : refs(e.args.substr(o, c - o + 1))) used.push_back(r);
+        }
+        bool found = false;
+        for (const long uid : used) {
+            const Entity* pe = get(ent, uid);
+            if (!pe) continue;
+            const Entity& e = *pe;
+            if (!e.type.empty() || e.args.find("LENGTH_UNIT") == std::string::npos) continue;
+            double f = 0;
+            std::string name;
+            const auto si = e.args.find("SI_UNIT");
+            if (si != std::string::npos) {
+                const std::string a = e.args.substr(si);
+                if (a.find(".METRE.") == std::string::npos) continue;
+                if (a.find(".MILLI.") != std::string::npos) { f = 1.0; name = "mm"; }
+                else if (a.find(".CENTI.") != std::string::npos) { f = 10.0; name = "cm"; }
+                else if (a.find(".MICRO.") != std::string::npos) { f = 1e-3; name = "um"; }
+                else if (a.find(".KILO.") != std::string::npos) { f = 1e6; name = "km"; }
+                else { f = 1000.0; name = "m"; }
+            } else if (e.args.find("CONVERSION_BASED_UNIT") != std::string::npos) {
+                const auto s = strings(e.args);
+                std::string n = s.empty() ? "" : s[0];
+                for (auto& ch : n) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+                if (n.find("inch") != std::string::npos) { f = 25.4; name = "inch"; }
+                else if (n.find("foot") != std::string::npos || n.find("feet") != std::string::npos) { f = 304.8; name = "foot"; }
+                else throw std::runtime_error("STEP: unsupported length unit '" + n + "'");
+            } else {
+                continue;
+            }
+            if (found && f != out.length_unit_mm)
+                throw std::runtime_error("STEP: the file declares more than one length unit");
+            out.length_unit_mm = f;
+            out.length_unit = name;
+            found = true;
+        }
+        if (!found) out.length_unit = "mm (assumed)";
+    }
+    const double us = out.length_unit_mm;
     auto is = [&](long id, const char* t) { const Entity* x = get(ent, id); return x && x->type == t; };
 
     std::unordered_map<long, std::string> product_name;
@@ -379,6 +426,9 @@ StepModel read_step(const std::string& path, const std::string& root_name, bool 
                     const auto& vi = volumes(c);
                     o.faces = vi.faces;
                     o.faces_triangulated = vi.faces_triangulated;
+                    o.faces_parametric = vi.faces_parametric;
+                    o.area = vi.area;
+                    o.area_triangulated = vi.area_fan;
                     if (vi.v[0] > 0) {
                         const double V = vi.v[0];
                         const std::array<double, 3> d{vi.v[1] / V, vi.v[2] / V, vi.v[3] / V};  // centroid - ref (local)
@@ -432,6 +482,20 @@ StepModel read_step(const std::string& path, const std::string& root_name, bool 
                         o.solids.push_back(std::move(so));
                     }
                 }
+                if (us != 1.0) {  // convert to mm
+                    for (int i = 0; i < 3; ++i) { o.lo[i] *= us; o.hi[i] *= us; o.centroid[i] *= us; }
+                    o.volume *= us * us * us;
+                    for (double& c : o.cov) c *= us * us * us * us * us;
+                    o.area *= us * us;
+                    o.area_triangulated *= us * us;
+                    for (auto& so : o.solids) {
+                        for (auto& f : so.faces)
+                            for (auto& lp : f)
+                                for (auto& p : lp) for (double& c : p) c *= us;
+                        for (auto& ed : so.edges)
+                            for (auto& p : ed) for (double& c : p) c *= us;
+                    }
+                }
                 out.occurrences.push_back(o);
             }
             if (children.count(c)) stack.push_back({c, M, path2});
@@ -477,6 +541,9 @@ std::vector<StepGroup> group_by_level(const StepModel& m, std::size_t level) {
         g.n_points += o.n_points;
         g.faces += o.faces;
         g.faces_triangulated += o.faces_triangulated;
+        g.faces_parametric += o.faces_parametric;
+        g.area += o.area;
+        g.area_triangulated += o.area_triangulated;
         g.volume_check = std::max(g.volume_check, o.volume_check);
         g.moment_check = std::max(g.moment_check, o.moment_check);
         MassProps mp;
@@ -507,6 +574,9 @@ StepGroup union_by_prefix(const std::vector<StepGroup>& groups, const std::strin
         u.n_points += g.n_points;
         u.faces += g.faces;
         u.faces_triangulated += g.faces_triangulated;
+        u.faces_parametric += g.faces_parametric;
+        u.area += g.area;
+        u.area_triangulated += g.area_triangulated;
         u.volume_check = std::max(u.volume_check, g.volume_check);
         u.moment_check = std::max(u.moment_check, g.moment_check);
         u.mass.add(g.mass);
@@ -514,5 +584,7 @@ StepGroup union_by_prefix(const std::vector<StepGroup>& groups, const std::strin
     if (!any) throw std::runtime_error("no STEP group starts with '" + prefix + "'");
     return u;
 }
+
+void set_bspline_integration(bool parametric) { step_detail::set_parametric_bspline(parametric); }
 
 }  // namespace cylload

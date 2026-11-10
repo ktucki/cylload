@@ -1,0 +1,12 @@
+model        Synthetic backhoe attachment (boom, arm, bucket with four-bar linkage)
+bodies       5 moving (+ground), DOF 3, actuators 3
+joints       6 revolute, 0 prismatic
+mass items   14, total 2667.000 kg (incl. cylinders)
+  body boom          958.985 kg
+  body arm           365.303 kg
+  body bucket       1213.022 kg
+  body rocker         38.235 kg
+  body link           42.369 kg
+actuator S1     ground -> boom  L_ref 1591.383 mm  cylinder 125/85, 1300..2200 mm, 98.172 kg
+actuator S2     boom -> arm  L_ref 1408.013 mm  cylinder 115/80, 1200..1950 mm, 77.5042 kg
+actuator S3     arm -> rocker  L_ref 1275.813 mm  cylinder 100/70, 1050..1500 mm, 53.7362 kg

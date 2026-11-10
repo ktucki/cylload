@@ -1,0 +1,5 @@
+11 items, 2607.000 kg (1797.000 kg take part in the remainder), remainder 60.000 kg -> scale factor 1.0333889816
+  boom cylinder (S1 = EX-171/181; mass set in excavator.mech): scaled mass 98.17195326 kg (set it in the model file)
+  arm cylinder (S2 = EX-172/182; mass set in excavator.mech): scaled mass 77.50417362 kg (set it in the model file)
+  bucket cylinder (S3 = EX-173/183; mass set in excavator.mech): scaled mass 53.73622705 kg (set it in the model file)
+mass table reproduced

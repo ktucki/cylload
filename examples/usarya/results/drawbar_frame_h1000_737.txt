@@ -1,0 +1,11 @@
+actuator       L_mm        F_vw_N        F_eq_N        F_fd_N     p_bar
+ED          737.000    307560.624    307560.624    307560.624    195.80
+
+joint                  Fx_N         Fy_N        |F|_N       M_Nm
+A                       0.0      46116.9      46116.9        0.0
+B                 -299677.6      -3249.9     299695.3        0.0
+C                       0.0     -75527.1      75527.1        0.0
+level                  -0.0      75527.1      75527.1       -0.0
+
+body rotations [deg]: frame=-7.060 drawbar=17.973 hitch=0.000
+potential energy 147025.830 J

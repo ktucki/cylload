@@ -33,14 +33,14 @@ const char* kUsage =
     "                [--damping ZETA] [--dt S] [--tend S] [--stride N] [--ramps T1,T2,...] [--out FILE.csv]\n"
     "  cylload map   MODEL ACT_X ACT_Y [ACT=L ...] [--report ACT] [--nx N] [--ny N] [--xfrom L --xto L]\n"
     "                [--yfrom L --yto L] [--flow LPM] [--plim BAR] [--out FILE.csv]\n"
-    "  cylload mc    MODEL SPEC [--samples N] [--seed S] [--out FILE.csv] [--sensitivity FILE.csv]\n"
+    "  cylload mc    MODEL SPEC [--samples N] [--seed S] [--out FILE.csv] [--sensitivity FILE.csv] [--bootstrap B]\n"
     "  cylload draw  MODEL [ACT=L ...] [--overlay ACT=L,ACT=L ...] [--width MM] [--height MM] [--scale MM_PER_M [--ybottom MM]] [--color yes] [--cg yes] [--items no] [--labels no] [--font_pt PT] [--title TEXT]\n                [--step FILE --parts CSV [--level 2] [--plane xy] [--root NAME]] [--sketch FILE] [--view XMIN,YMIN,XMAX,YMAX]\n"
     "                [--out FILE.svg]\n"
     "  cylload plot  SPEC.txt [--data DIR] [--out FILE.svg]\n"
-    "  cylload step  FILE.step [--root NAME] [--level K] [--prefix P ...] [--mass yes|no]\n"
+    "  cylload step  FILE.step [--root NAME] [--level K] [--prefix P ...] [--mass yes|no] [--bspline parametric|fan]\n"
     "                [--density KG_M3] [--out FILE.csv]\n"
     "  cylload masstable FILE.step ASSIGN.csv [--root NAME] [--level K] [--plane xy]\n"
-    "                [--properties solid|outline] [--remainder KG] [--out MASSES.csv]\n"
+    "                [--properties solid|outline] [--remainder KG] [--bspline parametric|fan] [--out MASSES.csv]\n"
     "\n"
     "Lengths in mm, masses in kg, forces in N, pressures in bar. Actuators that are not\n"
     "given (ACT=L) keep their length from the reference configuration of the model.\n";
@@ -226,13 +226,18 @@ int cmd_mc(const Args& a) {
     McSpec sp = McSpec::from_file(a.pos.at(1));
     if (a.has("samples")) sp.samples = std::stoi(a.get("samples"));
     if (a.has("seed")) sp.seed = std::stoull(a.get("seed"));
+    if (a.has("bootstrap")) sp.bootstrap = std::stoi(a.get("bootstrap"));
     auto r = run_monte_carlo(m, sp);
     std::fprintf(stderr, "Monte Carlo: %d samples, seed %llu\n", sp.samples, static_cast<unsigned long long>(sp.seed));
     std::fprintf(stderr, "%-14s %9s %9s %9s %9s %9s   (pressure, bar)\n", "output", "min", "p5", "p50", "p95", "max");
     for (std::size_t i = 0; i < r.output_labels.size(); ++i) {
         const auto& s = r.pressure_stats[i];
-        std::fprintf(stderr, "%-14s %9.2f %9.2f %9.2f %9.2f %9.2f\n", r.output_labels[i].c_str(), s.min, s.p5, s.p50, s.p95, s.max);
+        std::fprintf(stderr, "%-14s %9.2f %9.2f %9.2f %9.2f %9.2f", r.output_labels[i].c_str(), s.min, s.p5, s.p50, s.p95, s.max);
+        if (sp.bootstrap > 0)
+            std::fprintf(stderr, "   95%% CI: p5 %.2f..%.2f, p95 %.2f..%.2f", s.p5_lo, s.p5_hi, s.p95_lo, s.p95_hi);
+        std::fprintf(stderr, "\n");
     }
+    if (sp.bootstrap > 0) std::fprintf(stderr, "(confidence intervals from %d bootstrap resamples)\n", sp.bootstrap);
     std::fprintf(stderr, "\nSpearman rank correlation (pressure vs. input):\n%-14s", "input");
     for (const auto& o : r.output_labels) std::fprintf(stderr, " %12s", o.c_str());
     std::fprintf(stderr, "\n");
@@ -249,6 +254,17 @@ int cmd_mc(const Args& a) {
         for (std::size_t i = 0; i < r.output_labels.size(); ++i) std::fprintf(stderr, "    %6.3f / %6.3f", r.first_order[i][j], r.src[i][j]);
         std::fprintf(stderr, "\n");
     }
+    if (sp.bootstrap > 0) {
+        std::fprintf(stderr, "\n95%% bootstrap confidence intervals of S_i:\n%-14s", "input");
+        for (const auto& o : r.output_labels) std::fprintf(stderr, " %17s", o.c_str());
+        std::fprintf(stderr, "\n");
+        for (std::size_t j = 0; j < r.input_labels.size(); ++j) {
+            std::fprintf(stderr, "%-14s", r.input_labels[j].c_str());
+            for (std::size_t i = 0; i < r.output_labels.size(); ++i)
+                std::fprintf(stderr, "     %5.3f..%5.3f", r.first_order_lo[i][j], r.first_order_hi[i][j]);
+            std::fprintf(stderr, "\n");
+        }
+    }
     std::fprintf(stderr, "%-14s", "R^2");
     for (std::size_t i = 0; i < r.output_labels.size(); ++i) std::fprintf(stderr, " %17.3f", r.r2[i]);
     std::fprintf(stderr, "\n");
@@ -256,16 +272,16 @@ int cmd_mc(const Args& a) {
         std::ofstream sf(a.get("sensitivity"));
         if (!sf) throw std::runtime_error("cannot write " + a.get("sensitivity"));
         sf.precision(8);
-        sf << "output,input,spearman,first_order,src,r2\n";
+        sf << "output,input,spearman,first_order,first_order_ci_lo,first_order_ci_hi,src,r2\n";
         for (std::size_t i = 0; i < r.output_labels.size(); ++i)
             for (std::size_t j = 0; j < r.input_labels.size(); ++j)
                 sf << r.output_labels[i] << ',' << r.input_labels[j] << ',' << r.spearman[i][j] << ',' << r.first_order[i][j] << ','
-                   << r.src[i][j] << ',' << r.r2[i] << '\n';
-        sf << "#stats,output,min,p5,p50,p95,max,mean\n";
+                   << r.first_order_lo[i][j] << ',' << r.first_order_hi[i][j] << ',' << r.src[i][j] << ',' << r.r2[i] << '\n';
+        sf << "#stats,output,min,p5,p50,p95,max,mean,p5_ci_lo,p5_ci_hi,p95_ci_lo,p95_ci_hi\n";
         for (std::size_t i = 0; i < r.output_labels.size(); ++i) {
             const auto& st = r.pressure_stats[i];
             sf << "#stats," << r.output_labels[i] << ',' << st.min << ',' << st.p5 << ',' << st.p50 << ',' << st.p95 << ',' << st.max << ','
-               << st.mean << '\n';
+               << st.mean << ',' << st.p5_lo << ',' << st.p5_hi << ',' << st.p95_lo << ',' << st.p95_hi << '\n';
         }
     }
     std::ofstream f;
@@ -288,12 +304,16 @@ int cmd_step(const Args& a) {
     const std::size_t level = std::stoul(a.get("level", "1"));
     const bool mass = a.get("mass", "yes") != "no";
     const double rho = to_d(a.get("density", "7850"));  // kg/m^3, only for the reference steel mass column
+    set_bspline_integration(a.get("bspline", "parametric") != "fan");
     StepModel sm = read_step(a.pos.at(0), a.get("root"), mass);
-    std::size_t nf = 0, nt = 0;
-    for (const auto& o : sm.occurrences) { nf += o.faces; nt += o.faces_triangulated; }
-    std::fprintf(stderr, "root '%s': %zu entities, %zu tree nodes, %zu with geometry", sm.root.c_str(), sm.n_entities, sm.n_tree_nodes,
-                 sm.occurrences.size());
-    if (mass) std::fprintf(stderr, "; %zu faces integrated (%zu triangulated)", nf, nt);
+    std::size_t nf = 0, nt = 0, np = 0;
+    double area = 0, area_t = 0;
+    for (const auto& o : sm.occurrences) { nf += o.faces; nt += o.faces_triangulated; np += o.faces_parametric; area += o.area; area_t += o.area_triangulated; }
+    std::fprintf(stderr, "root '%s': %zu entities, %zu tree nodes, %zu with geometry, length unit %s", sm.root.c_str(), sm.n_entities,
+                 sm.n_tree_nodes, sm.occurrences.size(), sm.length_unit.c_str());
+    if (mass)
+        std::fprintf(stderr, "; %zu faces integrated (%zu B-spline faces in their parameter domain, %zu triangulated = %.3g%% of the area)",
+                     nf, np, nt, area > 0 ? 100.0 * area_t / area : 0.0);
     std::fprintf(stderr, "\n");
     auto groups = group_by_level(sm, level);
     std::ofstream f;
@@ -307,12 +327,13 @@ int cmd_step(const Args& a) {
         if (mass) {
             os << ',' << g.mass.volume << ',' << g.mass.volume * rho * 1e-9;
             for (int i = 0; i < 3; ++i) os << ',' << g.mass.centroid[i];
-            os << ',' << g.mass.k2(0, 1) << ',' << g.faces_triangulated << ',' << g.volume_check << ',' << g.moment_check;
+            os << ',' << g.mass.k2(0, 1) << ',' << g.faces << ',' << g.faces_parametric << ',' << g.faces_triangulated << ',' << g.area << ','
+               << g.area_triangulated << ',' << g.volume_check << ',' << g.moment_check;
         }
         os << '\n';
     };
     os << "name,occurrences,points,xmin,ymin,zmin,xmax,ymax,zmax,xc,yc,zc";
-    if (mass) os << ",volume_mm3,mass_at_density_kg,xg,yg,zg,kz2_m2,faces_triangulated,volume_check,moment_check";
+    if (mass) os << ",volume_mm3,mass_at_density_kg,xg,yg,zg,kz2_m2,faces,faces_bspline_parametric,faces_triangulated,area_mm2,area_triangulated_mm2,volume_check,moment_check";
     os << '\n';
     auto prefixes = a.all("prefix");
     if (prefixes.empty()) {
@@ -349,12 +370,13 @@ int cmd_simulate(const Args& a) {
         std::ofstream f;
         std::ostream& os = outstream(a, f);
         os.precision(10);
-        os << "t_ramp_s,tau,kappa_formula,kappa_sim,dF_sim_N,dF_formula_N\n";
+        os << "t_ramp_s,tau,kappa_formula,kappa_sim,dF_sim_N,dF_formula_N,dF_sim_less_damping_drag_N\n";
         for (double tr : trs) {
             o.t_ramp = tr;
             auto r = simulate(kin, o, 1000000);
             const double w = 2 * 3.14159265358979323846 * r.f0, base = r.m0 * r.v * w;
-            os << tr << ',' << w * tr << ',' << ramp_factor(w * tr) << ',' << r.dF_max / base << ',' << r.dF_max << ',' << r.dF_formula << '\n';
+            os << tr << ',' << w * tr << ',' << ramp_factor(w * tr) << ',' << r.dF_max / base << ',' << r.dF_max << ',' << r.dF_formula << ','
+               << r.dF_max_osc << '\n';
             std::fprintf(stderr, "t_r %.4f s: simulation %.1f N, formula %.1f N (%+.2f %%)\n", tr, r.dF_max, r.dF_formula,
                          100.0 * (r.dF_max / r.dF_formula - 1));
         }
@@ -618,6 +640,7 @@ int cmd_masstable(const Args& a) {
     const std::string props = a.get("properties", "solid");
     if (props != "solid" && props != "outline") throw std::runtime_error("--properties must be solid or outline");
     const bool outline = props == "outline";
+    set_bspline_integration(a.get("bspline", "parametric") != "fan");
     StepModel sm = read_step(a.pos.at(0), a.get("root"), !outline);
     auto groups = group_by_level(sm, level);
     struct Out { std::string name, body, group, src; double m, x, y, k2; bool rem; };
@@ -652,6 +675,16 @@ int cmd_masstable(const Args& a) {
                               pre.c_str(), u.mass.volume, u.mass.volume * 7.85e-6, u.n_occurrences, u.faces_triangulated);
             }
             o.src = buf;
+            // a bought-in component modelled as a shell or a simplified body: given centre of gravity / inertia
+            if (r.count("x_mm") && !r.at("x_mm").empty() && r.count("y_mm") && !r.at("y_mm").empty()) {
+                o.x = std::stod(r.at("x_mm"));
+                o.y = std::stod(r.at("y_mm"));
+                o.src += ", centre of gravity given";
+            }
+            if (r.count("J_kgm2") && !r.at("J_kgm2").empty()) {
+                o.k2 = o.m > 0 ? std::stod(r.at("J_kgm2")) / o.m : 0.0;
+                o.src += ", J given";
+            }
         } else {
             o.x = std::stod(r.at("x_mm"));
             o.y = std::stod(r.at("y_mm"));

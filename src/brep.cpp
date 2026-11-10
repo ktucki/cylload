@@ -26,6 +26,7 @@
 #include <map>
 #include <set>
 #include <stdexcept>
+#include <memory>
 #include <string>
 
 #include "step_entities.hpp"
@@ -34,6 +35,8 @@ namespace cylload {
 namespace step_detail {
 
 namespace {
+
+bool g_parametric_bspline = true;
 
 constexpr double kPi = 3.14159265358979323846;
 using V3 = std::array<double, 3>;
@@ -257,6 +260,188 @@ Nurbs nurbs_from(const std::vector<Val>& bsc, const std::vector<Val>& knots_part
     return c;
 }
 
+
+// ------------------------------------------------------------------ NURBS surfaces
+/// Rational B-spline surface S(u, v) with first derivatives (Piegl & Tiller, A2.3 and A4.4).
+struct NSurf {
+    int pu = 0, pv = 0, nu = 0, nv = 0;
+    std::vector<V3> P;            // control points, index i * nv + j (i along u)
+    std::vector<double> W, U, V;  // weights and knot vectors
+    bool closed_u = false, closed_v = false;
+    double u0() const { return U[pu]; }
+    double u1() const { return U[nu]; }
+    double v0() const { return V[pv]; }
+    double v1() const { return V[nv]; }
+    static int span(const std::vector<double>& K, int p, int n, double t) {
+        if (t >= K[n]) return n - 1;
+        int k = p;
+        while (k < n - 1 && t >= K[k + 1]) ++k;
+        return k;
+    }
+    // basis functions N[0..p] and first derivatives D[0..p] at t in span k
+    static void basis(const std::vector<double>& K, int p, int k, double t, double* N, double* D) {
+        double left[16], right[16], ndu[16][16];
+        ndu[0][0] = 1.0;
+        for (int j = 1; j <= p; ++j) {
+            left[j] = t - K[k + 1 - j];
+            right[j] = K[k + j] - t;
+            double saved = 0.0;
+            for (int r = 0; r < j; ++r) {
+                ndu[j][r] = right[r + 1] + left[j - r];
+                const double tmp = ndu[j][r] != 0 ? ndu[r][j - 1] / ndu[j][r] : 0.0;
+                ndu[r][j] = saved + right[r + 1] * tmp;
+                saved = left[j - r] * tmp;
+            }
+            ndu[j][j] = saved;
+        }
+        for (int j = 0; j <= p; ++j) N[j] = ndu[j][p];
+        if (p == 0) { D[0] = 0; return; }
+        for (int r = 0; r <= p; ++r) {
+            double d = 0.0;
+            if (r >= 1) d += ndu[p][r - 1] != 0 ? ndu[r - 1][p - 1] / ndu[p][r - 1] : 0.0;
+            if (r <= p - 1) d -= ndu[p][r] != 0 ? ndu[r][p - 1] / ndu[p][r] : 0.0;
+            D[r] = d * p;
+        }
+    }
+    double wrap(double t, double a, double b, bool closed) const {
+        if (!closed) return std::min(std::max(t, a), b);
+        const double L = b - a;
+        t = std::fmod(t - a, L);
+        if (t < 0) t += L;
+        return a + t;
+    }
+    void eval(double u, double v, V3& S, V3& Su, V3& Sv) const {
+        u = wrap(u, u0(), u1(), closed_u);
+        v = wrap(v, v0(), v1(), closed_v);
+        const int ku = span(U, pu, nu, u), kv = span(V, pv, nv, v);
+        double Nu[16], Du[16], Nv[16], Dv[16];
+        basis(U, pu, ku, u, Nu, Du);
+        basis(V, pv, kv, v, Nv, Dv);
+        double A[4] = {0, 0, 0, 0}, Au[4] = {0, 0, 0, 0}, Av[4] = {0, 0, 0, 0};
+        for (int a = 0; a <= pu; ++a)
+            for (int b = 0; b <= pv; ++b) {
+                const int idx = (ku - pu + a) * nv + (kv - pv + b);
+                const double w = W[idx];
+                const double hp[4] = {P[idx][0] * w, P[idx][1] * w, P[idx][2] * w, w};
+                for (int c = 0; c < 4; ++c) {
+                    A[c] += Nu[a] * Nv[b] * hp[c];
+                    Au[c] += Du[a] * Nv[b] * hp[c];
+                    Av[c] += Nu[a] * Dv[b] * hp[c];
+                }
+            }
+        for (int c = 0; c < 3; ++c) {
+            S[c] = A[c] / A[3];
+            Su[c] = (Au[c] - Au[3] * S[c]) / A[3];
+            Sv[c] = (Av[c] - Av[3] * S[c]) / A[3];
+        }
+    }
+    int spans_u() const { int s = 0; for (int i = pu; i < nu; ++i) s += U[i + 1] > U[i]; return std::max(1, s); }
+    int spans_v() const { int s = 0; for (int i = pv; i < nv; ++i) s += V[i + 1] > V[i]; return std::max(1, s); }
+    /// closest point parameters (Gauss-Newton from the hint, grid search if that fails); returns the distance
+    double invert(const V3& q, double& u, double& v) const {
+        auto refine = [&](double& uu, double& vv) {
+            V3 S, Su, Sv;
+            for (int it = 0; it < 40; ++it) {
+                eval(uu, vv, S, Su, Sv);
+                const V3 r = sub(S, q);
+                const double a = dot(Su, Su), b = dot(Su, Sv), c = dot(Sv, Sv);
+                const double gu = dot(Su, r), gv = dot(Sv, r), det = a * c - b * b;
+                if (!(det > 0)) break;
+                const double du = -(c * gu - b * gv) / det, dv = -(a * gv - b * gu) / det;
+                uu += du;
+                vv += dv;
+                if (!closed_u) uu = std::min(std::max(uu, u0()), u1());
+                if (!closed_v) vv = std::min(std::max(vv, v0()), v1());
+                if (std::fabs(du) < 1e-14 * (u1() - u0() + 1) && std::fabs(dv) < 1e-14 * (v1() - v0() + 1)) break;
+            }
+            eval(uu, vv, S, Su, Sv);
+            return std::sqrt(dot(sub(S, q), sub(S, q)));
+        };
+        double uu = u, vv = v;
+        double d = refine(uu, vv);
+        if (d > 1e3 * tol) {  // Gauss-Newton ended far from the point: restart from the best grid node
+            const int Nu = 12 * spans_u(), Nv = 12 * spans_v();
+            double best = 1e300, ub = u0(), vb = v0();
+            V3 S, Su, Sv;
+            for (int i = 0; i <= Nu; ++i)
+                for (int j = 0; j <= Nv; ++j) {
+                    const double a = u0() + (u1() - u0()) * i / Nu, b = v0() + (v1() - v0()) * j / Nv;
+                    eval(a, b, S, Su, Sv);
+                    const double e = dot(sub(S, q), sub(S, q));
+                    if (e < best) { best = e; ub = a; vb = b; }
+                }
+            double d2 = refine(ub, vb);
+            if (d2 < d) { d = d2; uu = ub; vv = vb; }
+        }
+        // keep a closed parameter continuous with the hint (the seam is not a boundary)
+        if (closed_u) { const double L = u1() - u0(); uu += L * std::round((u - uu) / L); }
+        if (closed_v) { const double L = v1() - v0(); vv += L * std::round((v - vv) / L); }
+        u = uu;
+        v = vv;
+        return d;
+    }
+    double tol = 1e-6;  // [mm], set from the size of the surface
+};
+
+std::shared_ptr<NSurf> nsurf_from(const std::vector<Val>& bss, const std::vector<Val>& knots, const std::vector<Val>* weights, Geo& g) {
+    // bss: (u_degree, v_degree, control points, form, u_closed, v_closed, self_intersect)
+    // knots: (u_mults, v_mults, u_knots, v_knots, spec)
+    auto s = std::make_shared<NSurf>();
+    s->pu = static_cast<int>(num(bss.at(0)));
+    s->pv = static_cast<int>(num(bss.at(1)));
+    if (s->pu > 15 || s->pv > 15) throw std::runtime_error("STEP: B-spline surface degree above 15");
+    const auto& rows = bss.at(2).l;
+    s->nu = static_cast<int>(rows.size());
+    s->nv = rows.empty() ? 0 : static_cast<int>(rows[0].l.size());
+    for (const auto& row : rows) {
+        if (static_cast<int>(row.l.size()) != s->nv) throw std::runtime_error("STEP: ragged B-spline control net");
+        for (const auto& r : row.l) s->P.push_back(g.point(r.r));
+    }
+    auto expand = [](const std::vector<Val>& mult, const std::vector<Val>& kn) {
+        std::vector<double> K;
+        for (std::size_t i = 0; i < kn.size(); ++i)
+            for (int m = 0; m < static_cast<int>(num(mult.at(i))); ++m) K.push_back(num(kn[i]));
+        return K;
+    };
+    s->U = expand(knots.at(0).l, knots.at(2).l);
+    s->V = expand(knots.at(1).l, knots.at(3).l);
+    if (static_cast<int>(s->U.size()) != s->nu + s->pu + 1 || static_cast<int>(s->V.size()) != s->nv + s->pv + 1)
+        throw std::runtime_error("STEP: inconsistent B-spline surface knot vectors");
+    s->W.assign(s->P.size(), 1.0);
+    if (weights) {
+        std::size_t k = 0;
+        for (const auto& row : *weights)
+            for (const auto& w : row.l)
+                if (k < s->W.size()) s->W[k++] = num(w);
+    }
+    // closedness and tolerance from the geometry itself
+    V3 lo{1e300, 1e300, 1e300}, hi{-1e300, -1e300, -1e300};
+    for (const auto& p : s->P)
+        for (int c = 0; c < 3; ++c) { lo[c] = std::min(lo[c], p[c]); hi[c] = std::max(hi[c], p[c]); }
+    const double size = std::sqrt(dot(sub(hi, lo), sub(hi, lo)));
+    s->tol = 1e-6 * size + 1e-9;
+    auto same = [&](bool along_u) {
+        V3 A, B, d1, d2;
+        for (int i = 0; i <= 8; ++i) {
+            const double t = i / 8.0;
+            if (along_u) {
+                const double v = s->v0() + (s->v1() - s->v0()) * t;
+                s->eval(s->u0(), v, A, d1, d2);
+                s->eval(s->u1(), v, B, d1, d2);
+            } else {
+                const double u = s->u0() + (s->u1() - s->u0()) * t;
+                s->eval(u, s->v0(), A, d1, d2);
+                s->eval(u, s->v1(), B, d1, d2);
+            }
+            if (std::sqrt(dot(sub(A, B), sub(A, B))) > 1e-6 * size + 1e-9) return false;
+        }
+        return true;
+    };
+    s->closed_u = same(true);
+    s->closed_v = same(false);
+    return s;
+}
+
 /// An edge as traversed in a loop: P(s), s in [0, 1] from its start to its end vertex.
 struct EdgePath {
     int kind = 0;  // 0 line, 1 conic (circle/ellipse), 2 nurbs
@@ -348,12 +533,37 @@ EdgePath edge_path(long oriented_edge, Geo& g) {
 
 // ------------------------------------------------------------------ surfaces
 struct Surf {
-    int kind = -1;  // 0 plane, 1 cylinder, 2 cone, 3 sphere, 4 torus, -1 other
+    int kind = -1;  // 0 plane, 1 cylinder, 2 cone, 3 sphere, 4 torus, 5 NURBS, -1 other
     Geo::Frame f{};
     double R = 0, r = 0, ta = 0;
+    std::shared_ptr<NSurf> ns;           // kind 5
+    mutable double hu = 0, hv = 0;       // kind 5: last inverted parameters (continuity along a loop)
+    mutable double max_dist = 0;         // kind 5: largest distance of a boundary point from the surface
+    void reset_hint(const V3& q) const {
+        double u = ns->u0(), v = ns->v0();
+        double best = 1e300;
+        const int Nu = 12 * ns->spans_u(), Nv = 12 * ns->spans_v();
+        V3 S, Su, Sv;
+        for (int i = 0; i <= Nu; ++i)
+            for (int j = 0; j <= Nv; ++j) {
+                const double a = ns->u0() + (ns->u1() - ns->u0()) * i / Nu, b = ns->v0() + (ns->v1() - ns->v0()) * j / Nv;
+                ns->eval(a, b, S, Su, Sv);
+                const double e = dot(sub(S, q), sub(S, q));
+                if (e < best) { best = e; u = a; v = b; }
+            }
+        hu = u;
+        hv = v;
+    }
     bool periodic_v() const { return kind == 4; }
     bool periodic_u() const { return kind >= 1; }
     std::array<double, 2> uv(const V3& q) const {
+        if (kind == 5) {
+            double u = hu, v = hv;
+            max_dist = std::max(max_dist, ns->invert(q, u, v));
+            hu = u;
+            hv = v;
+            return {u, v};
+        }
         const V3 d = sub(q, f.o);
         const double x = dot(d, f.x), y = dot(d, f.y), z = dot(d, f.z);
         switch (kind) {
@@ -368,6 +578,11 @@ struct Surf {
         const double cu = std::cos(u), su = std::sin(u);
         const V3 e = add(scl(f.x, cu), scl(f.y, su)), ep = add(scl(f.x, -su), scl(f.y, cu));
         V3 Su, Sv;
+        if (kind == 5) {
+            ns->eval(u, v, S, Su, Sv);
+            N = crs(Su, Sv);
+            return;
+        }
         switch (kind) {
             case 0:
                 S = add(f.o, add(scl(f.x, u), scl(f.y, v)));
@@ -416,6 +631,19 @@ Surf surface(long id, Geo& g) {
     else if (s.type == "TOROIDAL_SURFACE") {
         auto a = args_of(s);
         out.kind = 4; out.f = g.frame(a.at(1).r); out.R = num(a.at(2)); out.r = num(a.at(3));
+    } else if (g_parametric_bspline && s.type == "B_SPLINE_SURFACE_WITH_KNOTS") {
+        auto a = args_of(s);  // name, u_deg, v_deg, points, form, u_closed, v_closed, self, u_mults, v_mults, u_knots, v_knots, spec
+        std::vector<Val> bss(a.begin() + 1, a.begin() + 8), kn(a.begin() + 8, a.end());
+        out.ns = nsurf_from(bss, kn, nullptr, g);
+        out.kind = 5;
+    } else if (g_parametric_bspline && s.type.empty()) {
+        auto parts = complex_parts(s);
+        if (parts.count("B_SPLINE_SURFACE") && parts.count("B_SPLINE_SURFACE_WITH_KNOTS")) {
+            const std::vector<Val>* w = nullptr;
+            if (parts.count("RATIONAL_B_SPLINE_SURFACE")) w = &parts["RATIONAL_B_SPLINE_SURFACE"].at(0).l;
+            out.ns = nsurf_from(parts["B_SPLINE_SURFACE"], parts["B_SPLINE_SURFACE_WITH_KNOTS"], w, g);
+            out.kind = 5;
+        }
     }
     return out;
 }
@@ -425,6 +653,7 @@ double unwrap(double x, double ref) { return x + 2 * kPi * std::round((ref - x) 
 // integrand: Phi_k(S - ref) * N_x for the 10 volume integrals
 void integrand(const V3& S, const V3& N, const V3& ref, double* out, double scale) {
     const double x = S[0] - ref[0], y = S[1] - ref[1], z = S[2] - ref[2], nx = N[0] * scale;
+    out[15] += std::sqrt(dot(N, N)) * scale;  // surface area
     out[10] += y * N[1] * scale;  // the volume once more with fields (0, y, 0) and (0, 0, z):
     out[11] += z * N[2] * scale;  // a consistency check of the boundary representation
     out[12] += x * x * y * N[1] * scale;      // int x^2 dV with the field (0, x^2 y, 0)
@@ -450,7 +679,11 @@ void face_green(const Surf& sf, const std::vector<Loop>& loops, double v0, const
         const double span = v - v0;
         if (span == 0) return;
         const bool ang = sf.kind == 3 || sf.kind == 4;
-        const int nsub = ang ? std::max(1, static_cast<int>(std::ceil(std::fabs(span) / (kPi / 8)))) : 1;
+        int nsub = ang ? std::max(1, static_cast<int>(std::ceil(std::fabs(span) / (kPi / 8)))) : 1;
+        if (sf.kind == 5) {
+            const double dv = (sf.ns->v1() - sf.ns->v0()) / (4.0 * sf.ns->spans_v());
+            nsub = std::max(2, static_cast<int>(std::ceil(std::fabs(span) / dv)));
+        }
         const double h = span / nsub;
         for (int k = 0; k < nsub; ++k) {
             const double a = v0 + k * h;
@@ -478,11 +711,13 @@ void face_green(const Surf& sf, const std::vector<Loop>& loops, double v0, const
     }
     for (const auto& lp : loops) {
         if (lp.edges.empty()) continue;
+        if (sf.kind == 5) sf.reset_hint(lp.edges.front().at(0.0));
         auto prev = sf.uv(lp.edges.front().at(0.0));
         if (sf.periodic_v()) prev[1] = unwrap(prev[1], vc);
         for (const auto& ep : lp.edges) {
-            for (int k = 0; k < ep.nsub; ++k) {
-                const double sa = static_cast<double>(k) / ep.nsub, sb = static_cast<double>(k + 1) / ep.nsub;
+            const int nk = ep.nsub * (sf.kind == 5 ? 4 : 1);
+            for (int k = 0; k < nk; ++k) {
+                const double sa = static_cast<double>(k) / nk, sb = static_cast<double>(k + 1) / nk;
                 for (int i = 0; i < 8; ++i) {
                     const double s = sa + 0.5 * (sb - sa) * (GX[i] + 1);
                     auto q = sf.uv(ep.at(s));
@@ -492,13 +727,21 @@ void face_green(const Surf& sf, const std::vector<Loop>& loops, double v0, const
                     auto qp = sf.uv(ep.at(std::min(1.0, s + hs))), qm = sf.uv(ep.at(std::max(0.0, s - hs)));
                     if (sf.periodic_u()) { qp[0] = unwrap(qp[0], q[0]); qm[0] = unwrap(qm[0], q[0]); }
                     const double dsp = std::min(1.0, s + hs) - std::max(0.0, s - hs);
-                    const double dudt = (qp[0] - qm[0]) / dsp;
+                    double dudt = (qp[0] - qm[0]) / dsp;
+                    if (sf.kind == 5) {  // fourth-order central difference (the inverted u carries round-off)
+                        const double h = 1e-3 * (sb - sa);
+                        double u4[4];
+                        const double off[4] = {-2, -1, 1, 2};
+                        for (int j = 0; j < 4; ++j) u4[j] = sf.uv(ep.at(s + off[j] * h))[0];
+                        sf.uv(ep.at(s));  // restore the continuity hint
+                        dudt = (u4[0] - 8 * u4[1] + 8 * u4[2] - u4[3]) / (12 * h);
+                    }
                     prev = q;
                     if (dudt == 0) continue;
-                    double g[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                    double g[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                     G(q[0], q[1], g);
                     const double wgt = -dudt * 0.5 * (sb - sa) * GW[i];
-                    for (int c = 0; c < 15; ++c) acc[c] += g[c] * wgt;
+                    for (int c = 0; c < 16; ++c) acc[c] += g[c] * wgt;
                 }
             }
         }
@@ -590,12 +833,29 @@ void integrate_face(long face_id, Geo& g, VolumeIntegrals& out, double sign) {
         }
         loops.push_back(std::move(lp));
     }
-    double acc[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    double acc[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     Surf sf = surface(fa.at(2).r, g);
     bool fan = sf.kind < 0;
     if (!fan) {
         double v0 = 0.0;
-        if (sf.kind >= 1) {
+        if (sf.kind == 5) {
+            // a NURBS face is integrated in its parameter domain when every boundary point lies on the
+            // surface and every loop closes in (u, v) (no loop winds around a closed direction)
+            v0 = sf.ns->v0();
+            for (const auto& lp : loops) {
+                if (lp.edges.empty() || fan) continue;
+                const V3 p0 = lp.edges.front().at(0.0);
+                sf.reset_hint(p0);
+                const auto first = sf.uv(p0);
+                std::array<double, 2> q = first;
+                for (const auto& ep : lp.edges)
+                    for (int i = 1; i <= 8 * ep.nsub; ++i) q = sf.uv(ep.at(static_cast<double>(i) / (8 * ep.nsub)));
+                const double Lu = sf.ns->u1() - sf.ns->u0(), Lv = sf.ns->v1() - sf.ns->v0();
+                if (std::fabs(q[0] - first[0]) > 1e-6 * Lu || std::fabs(q[1] - first[1]) > 1e-6 * Lv) fan = true;
+            }
+            if (sf.max_dist > 1e-2 + 1e2 * sf.ns->tol) fan = true;
+        }
+        if (sf.kind >= 1 && sf.kind <= 4) {
             auto w = windings(sf, loops);
             const bool same = fa.at(3).s == "T";
             if (sf.kind == 1 && w[0] != 0) fan = true;
@@ -622,12 +882,22 @@ void integrate_face(long face_id, Geo& g, VolumeIntegrals& out, double sign) {
                 }
             }
         }
-        if (!fan) face_green(sf, loops, v0, out.ref, acc);
+        if (!fan) {
+            face_green(sf, loops, v0, out.ref, acc);
+            if (sf.kind == 5 && sf.max_dist > 1e-2 + 1e2 * sf.ns->tol) {  // inversion failed on the quadrature points
+                fan = true;
+                for (double& a : acc) a = 0.0;
+            } else if (sf.kind == 5) {
+                ++out.faces_parametric;
+            }
+        }
     }
     if (fan) {
         face_fan(loops, out.ref, acc);
         ++out.faces_triangulated;
+        out.area_fan += std::fabs(acc[15]);
     }
+    out.area += std::fabs(acc[15]);
     for (int c = 0; c < 15; ++c) out.v[c] += sign * acc[c];
     ++out.faces;
 }
@@ -650,6 +920,8 @@ void integrate_shell(long shell_id, Geo& g, VolumeIntegrals& out, double sign) {
 }
 
 }  // namespace
+
+void set_parametric_bspline(bool on) { g_parametric_bspline = on; }
 
 VolumeIntegrals integrate_solids(const Entities& e, const std::vector<long>& reps) {
     Geo g{e, {}};
@@ -702,11 +974,17 @@ VolumeIntegrals integrate_solids(const Entities& e, const std::vector<long>& rep
                 for (int c = 0; c < 15; ++c) one.v[c] += sv * vd.v[c];
                 one.faces += vd.faces;
                 one.faces_triangulated += vd.faces_triangulated;
+                one.faces_parametric += vd.faces_parametric;
+                one.area += vd.area;
+                one.area_fan += vd.area_fan;
             }
         }
         for (int c = 0; c < 15; ++c) out.v[c] += one.v[c];
         out.faces += one.faces;
         out.faces_triangulated += one.faces_triangulated;
+        out.faces_parametric += one.faces_parametric;
+        out.area += one.area;
+        out.area_fan += one.area_fan;
         ++out.solids;
     }
     return out;

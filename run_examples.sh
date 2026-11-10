@@ -55,4 +55,24 @@ $B plot $U/figures/fig_fold.txt --out $RU/fig_fold.svg
 $B draw $U/hopper.mech lift=1150.388 tip=988.435 --sketch $U/hopper_sketch.txt --scale 10 --ybottom -1760 --color yes --font_pt 7 --items no --view -2200,-1760,1750,4420 --out $RU/hopper_lowered.svg
 $B draw $U/hopper.mech lift=1890.388 tip=988.435 --sketch $U/hopper_sketch.txt --scale 10 --ybottom -1760 --color yes --font_pt 7 --items no --view -2250,-1760,1750,4420 --out $RU/hopper_raised.svg
 $B draw $U/hopper.mech lift=1890.388 tip=1588.435 --sketch $U/hopper_sketch.txt --scale 10 --ybottom -1760 --color yes --font_pt 7 --items no --view -3150,-1760,1750,4420 --out $RU/hopper_tipped.svg
+# version 1.2: reduced mass without the cylinder pin masses (as in the published Python model)
+for V in "" _outline; do
+  $B ramp  $E/tower${V}_mr_nopins.mech S10 S8=973 --n 177 --flow 56.1 --plim 140 --out $R/ramp_tilt${V}_mr_nopins.csv 2> $R/ramp_tilt${V}_mr_nopins.txt
+  $B sweep $E/tower${V}_mr_nopins.mech S10 S8=973 --n 177 --out $R/tilt${V}_mr_nopins.csv 2> $R/tilt${V}_mr_nopins.txt
+done
+# damping: excess force over the quasi-steady force for zeta = 0, 0.05, 0.1, 0.2
+for Z in 0 0.05 0.1 0.2; do
+  $B simulate $E/tower.mech S10 S8=973 S10=978 --flow 11.25 --damping $Z --ramps 0.0001,0.05,0.1,0.2,0.3,0.5,0.75,1.0 --out $R/ramp_scan_zeta$Z.csv 2> /dev/null
+done
+# convergence of the Monte Carlo estimators with the number of samples
+for N in 500 1000 2000 4000 8000; do
+  $B mc $E/tower.mech $E/tower_mc.txt --samples $N --bootstrap 200 --sensitivity $R/sensitivity_N$N.csv > /dev/null 2>&1
+done
+# drawbar loaded by the frame weight at its centre of gravity (five heights of the centre of gravity)
+for f in $U/cases/drawbar_frame_h*.mech; do
+  $B sweep $f ED --from 737 --to 935 --n 45 --out $RU/$(basename $f .mech).csv 2> $RU/$(basename $f .mech).txt
+  $B pose $f ED=737 > $RU/$(basename $f .mech)_737.txt
+done
 echo "results written to $R and $RU"
+sh examples/excavator/run.sh
+python3 examples/excavator/check_independent.py || echo "(python3 with numpy not found: independent check not run)"

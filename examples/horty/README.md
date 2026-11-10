@@ -48,13 +48,23 @@ Tables 4, 5 and A2. Static values agree to the published rounding.
 | t_r* tilting, 56.1 L/min, 140 bar, s ² | 2.9 | 2.97 | 3.80 | 3.84 |
 | t_r* post lifting 56 / 110 kg, s ² | 4.9 / 7.1 | 4.93 / 7.14 | 5.22 / 7.35 | 5.24 / 7.37 |
 
-¹ The difference comes from the moment of inertia of the mast: 767.8 kg·m² here against
-740.2 kg·m² in Table A1 of the paper, scaled by the factor 1.2508 for the remaining
-mass. CylLoad's value is checked by a second integration field, agreeing to 1e-10, and
-lies close to the prism estimate of 766.5 kg·m².
+¹ The whole difference of 35 kg·m² comes from the moment of inertia of the mast about its
+own centre of gravity: 767.8 kg·m² here against 740.2 kg·m² in Table A1 of the paper. Both
+are scaled by the factor 1.2508 for the remaining mass, so the difference in J_H is
+(767.8 − 740.2) × 1.2508 = 34.5 kg·m². The mast term itself is only a small part of J_H;
+the difference is a difference in that term, not the term. CylLoad's value is checked by a
+second integration field, agreeing to 1e-10, and lies close to the prism estimate of
+766.5 kg·m².
 
 ² Retraction velocity, 56.1 L/min. The reduced mass in CylLoad also contains the lumped
-pins of cylinder 10 (about 0.3 %), which the published Python model neglected.
+pins of cylinder 10 (about 0.3 %), which the published Python model neglected. Without them
+(`tower_mr_nopins.mech`, `tower_outline_mr_nopins.mech`, `reduced_mass_pins=no`) the natural
+frequencies become 3.61–4.35 Hz (solid; published 3.6–4.4) and 3.71–4.46 Hz (outline), and
+t_r* becomes 3.83 s (solid; published 3.80) and 2.95 s (outline; published 2.9). The ramp
+time is governed by the mast-horizontal end of the stroke (L₁₀ = 758 mm), where
+t_r* = 2 m_r v / ((p_lim − p_st) A) magnifies small differences: the remaining 1.8 % of the
+outline value corresponds to 0.7 bar of static pressure. The values are therefore given to
+within 2 %, not "to the published rounding".
 
 The Monte Carlo percentiles (`results/monte_carlo*.txt`) match Table 6 of the paper
 within the sampling error (N = 3000).

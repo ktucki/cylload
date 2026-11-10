@@ -1,0 +1,21 @@
+# Monte Carlo: uncertainty of the mass data of the synthetic backhoe (uniform distributions)
+seed 2026
+samples 3000
+bootstrap 1000
+# +/-10 % on the title-block masses of each link
+scale k_boom   group:boom   0.9 1.1
+scale k_arm    group:arm    0.9 1.1
+scale k_bucket group:bucket 0.9 1.1
+scale k_link   group:linkage 0.9 1.1
+# bucket fill 0..810 kg (empty to heaped)
+mass  m_fill   group:payload 0 810
+# remainder 0..60 kg: scale of all items that share it (1797 / 1857 .. 1)
+scale m_res group:boom,group:arm,group:bucket,group:linkage,group:S1,group:S2,group:S3 0.967690899 1.0
+# centre of gravity of the bucket fill +/-100 mm
+shift d_fill group:payload -100 100 -100 100
+# outputs: reference pose; arm and boom extended reach
+output boom_ref      S1
+output arm_ref       S2
+output bucket_ref    S3
+output boom_reach    S1   S1=1450 S2=1900
+output bucket_reach  S3 S1=1450 S2=1900
