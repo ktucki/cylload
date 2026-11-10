@@ -13,7 +13,7 @@ of a real CAD export:
     EX-140 Rocker, EX-150 Link        bucket linkage
     EX-160 Valve block     bought-in part, exported only as a simplified envelope
     EX-171..173, 181..183  barrels and piston rods of the boom, arm and bucket cylinders
-    EX-105 Swing bracket   ground
+    EX-105 Upper frame     ground
 
 Machine plane x-y (x forward, y up), z across the machine, millimetres.
 The exact mass properties of every level-2 assembly are computed here from the
@@ -31,7 +31,7 @@ import gen_bspline as gb           # noqa: E402  extruded sections with arcs, B-
 S2 = math.sqrt(0.5)
 
 # ------------------------------------------------------------------ joints, reference pose
-J = dict(O=(0.0, 0.0),            # boom foot
+J = dict(A=(0.0, 0.0),            # boom foot
          Bg=(450.0, -650.0),      # boom cylinder, ground end
          Bb=(1600.0, 450.0),      # boom cylinder, boom end
          Ab=(1800.0, 1650.0),     # arm cylinder, boom end
@@ -55,6 +55,8 @@ def perp(a): return (-a[1], a[0])
 
 # ------------------------------------------------------------------ section profiles in the machine plane
 def slot_plate(pts, r):
+    """r: half width, or a list of half widths at the points (tapered plate)."""
+    rs = list(r) if isinstance(r, (list, tuple)) else [r] * len(pts)
     """Plate around a polyline of pin centres pts with half width r: straight sides,
     each end a half circle made of two 90 degree arcs (rational B-spline faces).
     Returns a CCW profile of ('L', p, q) and ('A', p, q, centre) segments."""
@@ -69,9 +71,9 @@ def slot_plate(pts, r):
         nrm = perp(d)
         if 0 < i < n - 1:
             d1 = unit(sub(pts[i], pts[i - 1]))
-            s = r / (nrm[0] * perp(d1)[0] + nrm[1] * perp(d1)[1])
+            s = rs[i] / (nrm[0] * perp(d1)[0] + nrm[1] * perp(d1)[1])
         else:
-            s = r
+            s = rs[i]
         left.append(add(pts[i], mul(nrm, s)))
         right.append(add(pts[i], mul(nrm, -s)))
     prof = []
@@ -79,13 +81,13 @@ def slot_plate(pts, r):
     for i in range(n - 1):
         prof.append(('L', right[i], right[i + 1]))
     d = unit(sub(pts[-1], pts[-2]))
-    tip = add(pts[-1], mul(d, r))
+    tip = add(pts[-1], mul(d, rs[-1]))
     prof.append(('A', right[-1], tip, pts[-1]))
     prof.append(('A', tip, left[-1], pts[-1]))
     for i in range(n - 1, 0, -1):
         prof.append(('L', left[i], left[i - 1]))
     d = unit(sub(pts[0], pts[1]))
-    tail = add(pts[0], mul(d, r))
+    tail = add(pts[0], mul(d, rs[0]))
     prof.append(('A', left[0], tail, pts[0]))
     prof.append(('A', tail, right[0], pts[0]))
     return prof
@@ -171,9 +173,10 @@ def rod(name, p, q, ro, ri, L0, L1):
         prof = [('L', (0, 0), (ro, 0)), ('L', (ro, 0), (ro, L1 - L0)), ('L', (ro, L1 - L0), (0, L1 - L0)), ('L', (0, L1 - L0), (0, 0))]
     gr.PROFILES[name] = prof
     u = unit(d)
-    # local z along the cylinder axis, local x = global z, local y = z x x
+    # local z along the cylinder axis
+    # local x in the machine plane, so the seams of the two half faces lie on the outline in side view
     Z = (u[0], u[1], 0.0)
-    X = (0.0, 0.0, 1.0)
+    X = (-u[1], u[0], 0.0)
     Y = (Z[1] * X[2] - Z[2] * X[1], Z[2] * X[0] - Z[0] * X[2], Z[0] * X[1] - Z[1] * X[0])
     R = [[X[i], Y[i], Z[i]] for i in range(3)]
     o = add(p, mul(u, L0))
@@ -188,22 +191,24 @@ def casting(name, origin):
 
 def build():
     W2, T = 160.0, 20.0  # half the inner width between side plates, plate thickness
-    # boom: bent box, foot O -> knee -> tip F
+    # boom: bent, tapered box, foot A -> knee -> tip F
     knee = (1900.0, 1250.0)
     for side, z0 in (('L', W2), ('R', -W2 - T)):
-        plate(f'EX-111 boom side plate {side}', slot_plate([J['O'], knee, J['F']], 190.0), z0, z0 + T)
-    boss('EX-112 boom foot boss', J['O'], 95.0, 50.0, -W2, W2)
+        plate(f'EX-111 boom side plate {side}', slot_plate([J['A'], (900.0, 610.0), knee, (2650.0, 1380.0), J['F']],
+                                                           [150.0, 200.0, 250.0, 185.0, 140.0]), z0, z0 + T)
+    boss('EX-112 boom foot boss', J['A'], 95.0, 50.0, -W2, W2)
     boss('EX-113 boom tip boss', J['F'], 90.0, 45.0, -W2, W2)
     boss('EX-114 boom cylinder boss', J['Bb'], 70.0, 40.0, -W2, W2)
     for side, z0 in (('L', 60.0), ('R', -80.0)):
-        plate(f'EX-117 boom cylinder bracket {side}', slot_plate([(1560.0, 1000.0), J['Bb']], 80.0), z0, z0 + 20.0)
-    plate('EX-115 arm cylinder bracket', slot_plate([(1700.0, 1350.0), J['Ab']], 85.0), -60.0, 60.0)
+        plate(f'EX-117 boom cylinder bracket {side}', slot_plate([(1560.0, 900.0), J['Bb']], [130.0, 80.0]), z0, z0 + 20.0)
+    plate('EX-115 arm cylinder bracket', slot_plate([(1760.0, 1300.0), J['Ab']], [140.0, 80.0]), -60.0, 60.0)
     casting('EX-116 bracket casting', (2200.0, 1330.0, 90.0))
     TREE.append(('EX-110 Boom', [p for p in PARTS if p.startswith('EX-11')]))
     # arm: tail At -> F -> G
     n0 = len(PARTS)
     for side, z0 in (('L', 90.0), ('R', -110.0)):
-        plate(f'EX-121 arm side plate {side}', slot_plate([J['At'], J['F'], J['G']], 130.0), z0, z0 + 20.0)
+        plate(f'EX-121 arm side plate {side}', slot_plate([J['At'], J['F'], (3500.0, 600.0), J['G']],
+                                                          [95.0, 165.0, 140.0, 95.0]), z0, z0 + 20.0)
     boss('EX-122 arm pin boss', J['F'], 75.0, 45.0, -90.0, 90.0)
     boss('EX-123 bucket pivot boss', J['G'], 60.0, 35.0, -90.0, 90.0)
     boss('EX-124 rocker pivot boss', J['R'], 50.0, 30.0, -90.0, 90.0)
@@ -216,6 +221,12 @@ def build():
         plate(f'EX-132 bucket ear {side}', slot_plate([J['G'], J['L']], 60.0), z0, z0 + 20.0)
     for side, z0 in (('L', 400.0), ('R', -416.0)):
         plate(f'EX-133 bucket side {side}', bucket_side(), z0, z0 + 16.0)
+    sh = bucket_shell()
+    ex, ey = sh[3][2]          # outer point of the cutting edge
+    for k, z0 in enumerate((-330.0, -170.0, -10.0, 150.0, 310.0)):
+        plate(f'EX-134 tooth {k + 1}', [('L', (ex - 60.0, ey), (ex + 150.0, ey + 6.0)), ('L', (ex + 150.0, ey + 6.0), (ex + 150.0, ey + 26.0)),
+                                        ('L', (ex + 150.0, ey + 26.0), (ex - 60.0, ey + 60.0)), ('L', (ex - 60.0, ey + 60.0), (ex - 60.0, ey))],
+              z0, z0 + 40.0)
     TREE.append(('EX-130 Bucket', list(PARTS)[n0:]))
     # linkage
     n0 = len(PARTS)
@@ -227,7 +238,7 @@ def build():
     TREE.append(('EX-150 Link', list(PARTS)[n0:]))
     # bought-in valve block on the boom: the supplier's STEP is a plain envelope
     n0 = len(PARTS)
-    plate('EX-161 valve block envelope', box(1150.0, 980.0, 1450.0, 1130.0), -90.0, 90.0)
+    plate('EX-161 valve block envelope', box(1150.0, 700.0, 1450.0, 850.0), -90.0, 90.0)
     TREE.append(('EX-160 Valve block', list(PARTS)[n0:]))
     # cylinders: barrel from the base end, rod from the rod end (reference lengths)
     # barrel and rod are each 0.92 of the retracted length, so they overlap over the whole stroke
@@ -235,15 +246,18 @@ def build():
                                                   ('Arm cylinder S2', 'Ab', 'At', 70.0, 40.0, 1200.0),
                                                   ('Bucket cylinder S3', 'Cb', 'K', 60.0, 35.0, 1050.0))):
         n0 = len(PARTS)
-        rod(f'EX-17{k + 1}.1 barrel', J[a], J[b], rb, rb - 12.0, 60.0, 0.92 * lmin)
+        rod(f'EX-17{k + 1}.1 barrel', J[a], J[b], rb, 0.0, 60.0, 0.92 * lmin)
         TREE.append((f'EX-17{k + 1} {nm} barrel', list(PARTS)[n0:]))
         n0 = len(PARTS)
         rod(f'EX-18{k + 1}.1 piston rod', J[b], J[a], rr, 0.0, 40.0, 0.92 * lmin)
         TREE.append((f'EX-18{k + 1} {nm} piston rod', list(PARTS)[n0:]))
     n0 = len(PARTS)
-    plate('EX-106 swing bracket plate', slot_plate([(-150.0, -700.0), J['Bg']], 90.0), -60.0, 60.0)
-    boss('EX-107 swing bracket boss', (-150.0, -700.0), 120.0, 60.0, -200.0, 200.0)
-    TREE.append(('EX-105 Swing bracket', list(PARTS)[n0:]))
+    plate('EX-106 boom mounting bracket', [('L', (-260.0, -860.0), (620.0, -860.0)), ('L', (620.0, -860.0), (620.0, -560.0)),
+                                            ('L', (620.0, -560.0), (180.0, -60.0)), ('L', (180.0, -60.0), (-180.0, -60.0)),
+                                            ('L', (-180.0, -60.0), (-260.0, -860.0))], -60.0, 60.0)
+    plate('EX-107 upper frame', box(-2200.0, -1060.0, 700.0, -860.0), -600.0, 600.0)
+    boss('EX-108 boom cylinder pin boss', J['Bg'], 75.0, 40.0, -100.0, 100.0)
+    TREE.append(('EX-105 Upper frame', list(PARTS)[n0:]))
 
 
 # ------------------------------------------------------------------ exact properties

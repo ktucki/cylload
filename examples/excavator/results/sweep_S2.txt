@@ -1,7 +1,7 @@
 actuator S2, L 1200.00..1950.00 mm, 76 points
-  F_max 74772.2 N at L=1950.00   F_min -36467.9 N at L=1200.00
-  p_max 71.99 bar at L=1950.00
-  checks: |F_vw-F_fd|/max|F| = 3.23e-10, |F_vw-F_eq|/max|F| = 2.53e-15
-  energy: integral F dL = 3970.216 J, Delta V = 3967.209 J (rel. diff 7.58e-04)
-  reduced mass 23123.2..76084.8 kg, natural frequency 4.51..16.15 Hz
-  Euler load at L_max 1095922 N, safety factor 14.66
+  F_max 74463.3 N at L=1950.00   F_min -36629.2 N at L=1200.00
+  p_max 71.69 bar at L=1950.00
+  checks: |F_vw-F_fd|/max|F| = 3.30e-10, |F_vw-F_eq|/max|F| = 2.93e-15
+  energy: integral F dL = 3797.554 J, Delta V = 3794.547 J (rel. diff 7.92e-04)
+  reduced mass 23154.4..76187.5 kg, natural frequency 4.51..16.14 Hz
+  Euler load at L_max 1095922 N, safety factor 14.72

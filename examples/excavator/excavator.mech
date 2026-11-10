@@ -5,7 +5,7 @@ gravity 0 -9.81
 
 body boom arm bucket rocker link
 
-revolute O ground boom    0.0     0.0
+revolute A ground boom    0.0     0.0
 revolute F boom   arm     3300.0  1500.0
 revolute G arm    bucket  3700.0  -300.0
 revolute R arm    rocker  3620.0  0.0
@@ -20,3 +20,10 @@ actuator S3 arm    3420.0 1250.0  rocker 3880.0 60.0  bore=100 rod=70 min=1050 m
 hydraulics beta=1.0e9 dead_volume_piston=0.4 dead_volume_rod=0.6
 
 masses excavator_masses.csv
+
+# item numbers for the drawings (assemblies of excavator.step)
+label boom   110
+label arm    120
+label bucket 130
+label rocker 140
+label link   150

@@ -70,8 +70,8 @@ if not exist %RX% mkdir %RX%
 "%CYLLOAD%" simulate %X%\excavator.mech S1 --flow 120 --ramp 0.05 --dir ext --out %RX%\simulate_S1.csv 2> %RX%\simulate_S1.txt
 "%CYLLOAD%" map %X%\excavator.mech S1 S2 --report S1 --nx 46 --ny 39 --flow 120 --out %RX%\map_boom_arm.csv 2> %RX%\map_boom_arm.txt
 "%CYLLOAD%" mc %X%\excavator.mech %X%\excavator_mc.txt --out %RX%\monte_carlo.csv --sensitivity %RX%\sensitivity.csv 2> %RX%\monte_carlo.txt
-"%CYLLOAD%" draw %X%\excavator.mech --step %X%\excavator.step --parts %X%\excavator_parts.csv --level 1 --color yes --scale 25 --ybottom -1450 --height 100 --view -500,-1450,4900,2350 --title "Reference pose" --out %RX%\excavator.svg
-"%CYLLOAD%" draw %X%\excavator.mech S1=2100 S2=1300 S3=1450 --step %X%\excavator.step --parts %X%\excavator_parts.csv --level 1 --color yes --scale 25 --ybottom -1450 --height 145 --view -500,-1450,5000,4300 --title "Boom raised, arm in, bucket curled" --out %RX%\excavator_raised.svg
+"%CYLLOAD%" draw %X%\excavator.mech --step %X%\excavator.step --parts %X%\excavator_parts.csv --level 1 --color yes --scale 12 --ybottom -1150 --height 72 --font_pt 9 --items no --view -1400,-1150,4950,4300 --out %RX%\excavator.svg
+"%CYLLOAD%" draw %X%\excavator.mech S1=2100 S2=1300 S3=1450 --step %X%\excavator.step --parts %X%\excavator_parts.csv --level 1 --color yes --scale 12 --ybottom -1150 --height 72 --font_pt 9 --items no --view -1400,-1150,4950,4300 --out %RX%\excavator_raised.svg
 python examples\excavator\check_independent.py || echo (python with numpy not found: independent check not run)
 goto :eof
 :one

@@ -26,6 +26,6 @@ $B map $E/excavator.mech S1 S2 --report S1 --nx 46 --ny 39 --flow 120 --out $R/m
 # 6. Monte Carlo with bootstrap confidence intervals
 $B mc $E/excavator.mech $E/excavator_mc.txt --out $R/monte_carlo.csv --sensitivity $R/sensitivity.csv 2> $R/monte_carlo.txt
 # 7. drawing with the solid model projected on the machine plane
-$B draw $E/excavator.mech --step $E/excavator.step --parts $E/excavator_parts.csv --level 1 --color yes --scale 25 --ybottom -1450 --height 100 --view -500,-1450,4900,2350 --title "Reference pose" --out $R/excavator.svg
-$B draw $E/excavator.mech S1=2100 S2=1300 S3=1450 --step $E/excavator.step --parts $E/excavator_parts.csv --level 1 --color yes --scale 25 --ybottom -1450 --height 145 --view -500,-1450,5000,4300 --title "Boom raised, arm in, bucket curled" --out $R/excavator_raised.svg
+$B draw $E/excavator.mech --step $E/excavator.step --parts $E/excavator_parts.csv --level 1 --color yes --scale 12 --ybottom -1150 --height 72 --font_pt 9 --items no --view -1400,-1150,4950,4300 --out $R/excavator.svg
+$B draw $E/excavator.mech S1=2100 S2=1300 S3=1450 --step $E/excavator.step --parts $E/excavator_parts.csv --level 1 --color yes --scale 12 --ybottom -1150 --height 72 --font_pt 9 --items no --view -1400,-1150,4950,4300 --out $R/excavator_raised.svg
 echo "results written to $R"

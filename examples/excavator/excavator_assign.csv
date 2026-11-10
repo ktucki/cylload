@@ -10,7 +10,7 @@ arm (EX-120),arm,arm,290,EX-120,yes,,,
 bucket (EX-130),bucket,bucket,390,EX-130,yes,,,
 rocker (EX-140),rocker,linkage,11,EX-140,yes,,,
 link (EX-150),link,linkage,41,EX-150,yes,,,
-valve block (EX-160; bought-in; data-sheet CoG),boom,boom,38,EX-160,yes,1270,1030,0.9
+valve block (EX-160; bought-in; data-sheet CoG),boom,boom,38,EX-160,yes,1270,760,0.9
 hoses and lights,boom,boom,25,,yes,1700,1150,8
 bucket fill (0.45 m3 at 1800 kg/m3; operating load),bucket,payload,810,,no,4060,-760,95
 boom cylinder (S1 = EX-171/181; mass set in excavator.mech),-,S1,95,,yes,,,

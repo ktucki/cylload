@@ -5,8 +5,8 @@ regenerate. The machine is invented for this purpose: a backhoe attachment with 
 boom, an arm, a bucket on a four-bar linkage and three cylinders. Its solid model has the
 features of a real CAD export:
 
-* an assembly tree with 13 assemblies and 32 parts, each with its own placement;
-* 57 faces that are rational or non-rational B-spline surfaces: the rounded ends of the
+* an assembly tree with 13 assemblies and 38 parts, each with its own placement;
+* 53 faces that are rational or non-rational B-spline surfaces: the rounded ends of the
   plates, the bucket bottom and a cast bracket with a doubly curved bicubic top;
 * a bought-in valve block that the supplier exports only as an envelope, so its centre of
   gravity is taken from the (invented) data sheet;
@@ -57,8 +57,8 @@ Mass properties of the 13 assemblies against the exact values (`results/check_ma
 
 | B-spline faces | largest volume error | largest centroid error | largest error of J_z |
 |:--|--:|--:|--:|
-| integrated in their parameter domain (1.2, default) | 1.6 × 10⁻⁸ | 5 × 10⁻⁶ mm | 1.1 × 10⁻⁸ |
-| triangle fans on the boundary (1.1, `--bspline fan`) | 6.0 % | 13.6 mm | 5.6 % |
+| integrated in their parameter domain (1.2, default) | 1.5 × 10⁻⁸ | 5 × 10⁻⁶ mm | 1.0 × 10⁻⁸ |
+| triangle fans on the boundary (1.1, `--bspline fan`) | 5.7 % | 14.9 mm | 5.6 % |
 
 The bucket, with 12 B-spline faces, has the largest fan errors; the volume and moment
 consistency checks of the fan variant stay small, so they do not reveal these errors.
@@ -67,9 +67,9 @@ Loads over the strokes (`results/sweep_S*.txt`; the three force routes agree to 
 
 | Cylinder | bore/rod, mm | stroke, mm | largest pressure, bar | reduced mass, t | natural frequency, Hz |
 |:--|:--|:--|--:|:--|:--|
-| S1 boom | 125/85 | 1300–2200 | 82.9 | 49–124 | 3.6–13.7 |
-| S2 arm | 115/80 | 1200–1950 | 72.0 | 23–76 | 4.5–16.2 |
-| S3 bucket | 100/70 | 1050–1500 | 101.7 | 7.5–24 | 6.7–14.1 |
+| S1 boom | 125/85 | 1300–2200 | 83.0 | 49–124 | 3.6–13.7 |
+| S2 arm | 115/80 | 1200–1950 | 71.7 | 23–76 | 4.5–16.1 |
+| S3 bucket | 100/70 | 1050–1500 | 103.6 | 7.7–25 | 6.6–13.9 |
 
 Comparison with Exudyn 1.13.6 (`check_exudyn.py`, `results/check_exudyn.txt`; needs
 `pip install exudyn numpy`): the mechanism rebuilt from Exudyn planar rigid bodies, revolute
@@ -81,9 +81,9 @@ absolute coordinates with Lagrange multipliers gives the same forces, reduced ma
 natural frequencies at all 258 poses of the three sweeps to within 5 × 10⁻¹⁰.
 
 Start-up of the boom cylinder at 120 L/min with a 0.05 s ramp: simulated excess force
-219.1 kN against 219.0 kN from the ramp formula (+0.02 %). Monte Carlo (N = 3000, 95 %
-bootstrap intervals): P95 of the boom-cylinder pressure in the reference pose 79.1 bar
-(78.7–79.4 bar).
+219.0 kN against 218.9 kN from the ramp formula (+0.02 %). Monte Carlo (N = 3000, 95 %
+bootstrap intervals): P95 of the boom-cylinder pressure in the reference pose 79.3 bar
+(78.9–79.5 bar).
 
 The drawings `results/excavator.svg` and `results/excavator_raised.svg` show every part of
 the STEP model moved into the computed pose.

@@ -1,1 +1,1 @@
-map S1 x S2 (46 x 39), loads of S1: p_max 92.55 bar, largest local ramp time (retraction) 1.237 s
+map S1 x S2 (46 x 39), loads of S1: p_max 92.65 bar, largest local ramp time (retraction) 1.233 s

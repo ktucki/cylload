@@ -586,7 +586,7 @@ void test_excavator() {
         check(g.faces_triangulated == 0, name + ": no triangulated face");
         bs += g.faces_parametric;
     }
-    check(bs == 57, "57 B-spline faces integrated in their parameter domain");
+    check(bs == 53, "53 B-spline faces integrated in their parameter domain");
     Model m = Model::from_file(SRC + "/examples/excavator/excavator.mech");
     Kinematics kin(m);
     for (int k = 0; k < 3; ++k) {
