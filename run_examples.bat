@@ -72,6 +72,13 @@ if not exist %RX% mkdir %RX%
 "%CYLLOAD%" mc %X%\excavator.mech %X%\excavator_mc.txt --out %RX%\monte_carlo.csv --sensitivity %RX%\sensitivity.csv 2> %RX%\monte_carlo.txt
 "%CYLLOAD%" draw %X%\excavator.mech --step %X%\excavator.step --parts %X%\excavator_parts.csv --level 1 --color yes --scale 12 --ybottom -1150 --height 72 --font_pt 9 --items no --view -1400,-1150,4950,4300 --out %RX%\excavator.svg
 "%CYLLOAD%" draw %X%\excavator.mech S1=2100 S2=1300 S3=1450 --step %X%\excavator.step --parts %X%\excavator_parts.csv --level 1 --color yes --scale 12 --ybottom -1150 --height 72 --font_pt 9 --items no --view -1400,-1150,4950,4300 --out %RX%\excavator_raised.svg
+set K=examples\cyklop
+set RK=%K%\results
+if not exist %RK% mkdir %RK%
+"%CYLLOAD%" map   %K%\cyklop.mech S1 S2 --report S1 --nx 21 --ny 21 --plim 100 --out %RK%\map_S1.csv 2> %RK%\map_S1.txt
+"%CYLLOAD%" map   %K%\cyklop.mech S1 S2 --report S2 --nx 21 --ny 21 --plim 100 --out %RK%\map_S2.csv 2> %RK%\map_S2.txt
+"%CYLLOAD%" sweep %K%\cyklop.mech S1 S2=902 --n 21 --report S1 --out %RK%\sweep_S1.csv 2> %RK%\sweep_S1.txt
+"%CYLLOAD%" draw  %K%\cyklop.mech --overlay S1=1002,S2=1532 --font_pt 9 --out %RK%\cyklop.svg
 python examples\excavator\check_independent.py || echo (python with numpy not found: independent check not run)
 goto :eof
 :one

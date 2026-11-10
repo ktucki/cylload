@@ -1,0 +1,17 @@
+# Boom of the T-214/3 "Cyklop-1" trailed grapple loader (POL-MOT Warfama), described from its documentation only.
+# Pins read from Fig. 1 of the operator's manual (scale drawing of the working range, 1 m grid);
+# cylinders CJ2F-12-80/45/630 from the parts catalogue (table 4); arm masses estimated (not in the manual).
+# Machine plane x-y (x forward, y up), mm; origin at the zero of the grid of Fig. 1. Reference pose = pose of Fig. 1.
+title T-214 grapple loader boom (pins from the manufacturer's drawing)
+gravity 0 -9.81
+body boom arm
+revolute A ground boom  -517  2014
+revolute F boom   arm   1653  4045
+actuator S1 ground  455  870   boom  240 2487   bore=80 rod=45 min=1002 max=1632 mass=25
+actuator S2 boom    640 3375   arm  1198 4085   bore=80 rod=45 min=902  max=1532 mass=25
+# estimated arm masses; rated load 500 kg including the grapple (manual, technical data)
+mass boom_m boom 568 3030 200 50
+mass arm_m  arm 2400 4670 100 15
+mass load   arm 3150 5300 500 0
+# outline points for the drawing (tip of the arm = grapple suspension)
+outline arm 3150 5300

@@ -75,4 +75,5 @@ for f in $U/cases/drawbar_frame_h*.mech; do
 done
 echo "results written to $R and $RU"
 sh examples/excavator/run.sh
+sh examples/cyklop/run.sh
 python3 examples/excavator/check_independent.py || echo "(python3 with numpy not found: independent check not run)"

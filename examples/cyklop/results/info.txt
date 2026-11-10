@@ -1,0 +1,8 @@
+model        T-214 grapple loader boom (pins from the manufacturer's drawing)
+bodies       2 moving (+ground), DOF 2, actuators 2
+joints       2 revolute, 0 prismatic
+mass items   7, total 850.000 kg (incl. cylinders)
+  body boom          225.000 kg
+  body arm           612.500 kg
+actuator S1     ground -> boom  L_ref 1631.231 mm  cylinder 80/45, 1002..1632 mm, 25 kg
+actuator S2     boom -> arm  L_ref 903.030 mm  cylinder 80/45, 902..1532 mm, 25 kg

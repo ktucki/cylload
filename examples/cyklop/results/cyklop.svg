@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120.000mm" height="100.000mm" viewBox="0 0 120.000 100.000" font-family="Arial, Helvetica, sans-serif" font-size="3.175">
+<rect width="100%" height="100%" fill="#fff"/>
+<g>
+<polygon points="29.396,59.849 27.996,62.049 30.796,62.049" fill="#fff" stroke="#000" stroke-width="0.2" stroke-linejoin="round"/>
+<line x1="26.796" y1="62.049" x2="31.996" y2="62.049" stroke="#000" stroke-width="0.3"/>
+<line x1="27.696" y1="62.049" x2="26.896" y2="62.949" stroke="#000" stroke-width="0.15"/><line x1="28.596" y1="62.049" x2="27.796" y2="62.949" stroke="#000" stroke-width="0.15"/><line x1="29.496" y1="62.049" x2="28.696" y2="62.949" stroke="#000" stroke-width="0.15"/><line x1="30.396" y1="62.049" x2="29.596" y2="62.949" stroke="#000" stroke-width="0.15"/><line x1="31.296" y1="62.049" x2="30.496" y2="62.949" stroke="#000" stroke-width="0.15"/>
+<path d="M29.396 59.849L42.031 51.954L65.617 25.948L48.708 37.132Z" fill="#000" stroke="#000" stroke-width="2.350" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M29.396 59.849L42.031 51.954L65.617 25.948L48.708 37.132Z" fill="#fff" stroke="#fff" stroke-width="1.650" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M58.022 25.280L65.617 25.948L90.604 5.000Z" fill="#000" stroke="#000" stroke-width="2.350" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M58.022 25.280L65.617 25.948L90.604 5.000Z" fill="#fff" stroke="#fff" stroke-width="1.650" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="44.066,64.409 42.404,51.904 41.659,52.003 43.322,64.508 " fill="#fff" stroke="#000" stroke-width="0.280" stroke-linejoin="round"/>
+<polygon points="46.480,78.830 44.554,64.344 42.834,64.573 44.760,79.059 " fill="#fff" stroke="#000" stroke-width="0.350" stroke-linejoin="round"/>
+<polygon points="57.084,27.082 58.317,25.513 57.727,25.048 56.494,26.617 " fill="#fff" stroke="#000" stroke-width="0.280" stroke-linejoin="round"/>
+<polygon points="49.390,37.668 57.471,27.386 56.106,26.313 48.026,36.595 " fill="#fff" stroke="#000" stroke-width="0.350" stroke-linejoin="round"/>
+<circle cx="29.396" cy="59.849" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
+<circle cx="65.617" cy="25.948" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
+<circle cx="45.620" cy="78.944" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/><circle cx="42.031" cy="51.954" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/>
+<circle cx="48.708" cy="37.132" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/><circle cx="58.022" cy="25.280" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/>
+</g>
+<g>
+<path d="M29.396 59.849L44.094 62.289L78.985 58.394L58.907 55.592Z" fill="none" stroke="#000" stroke-width="0.180" stroke-linejoin="round" stroke-dasharray="1.2,0.8"/>
+<path d="M78.985 58.394L79.177 91.000L84.344 52.971Z" fill="none" stroke="#000" stroke-width="0.180" stroke-linejoin="round" stroke-dasharray="1.2,0.8"/>
+<polygon points="44.661,64.358 44.468,62.255 43.720,62.323 43.913,64.426 " fill="#fff" stroke="#000" stroke-width="0.144" stroke-linejoin="round" stroke-dasharray="1.2,0.8"/>
+<polygon points="46.484,78.865 45.151,64.313 43.422,64.471 44.756,79.024 " fill="#fff" stroke="#000" stroke-width="0.180" stroke-linejoin="round" stroke-dasharray="1.2,0.8"/>
+<polygon points="71.954,54.625 84.383,53.345 84.306,52.597 71.877,53.878 " fill="#fff" stroke="#000" stroke-width="0.144" stroke-linejoin="round" stroke-dasharray="1.2,0.8"/>
+<polygon points="58.996,56.456 72.005,55.115 71.827,53.388 58.818,54.729 " fill="#fff" stroke="#000" stroke-width="0.180" stroke-linejoin="round" stroke-dasharray="1.2,0.8"/>
+<circle cx="29.396" cy="59.849" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
+<circle cx="78.985" cy="58.394" r="0.65" fill="#fff" stroke="#000" stroke-width="0.22"/>
+<circle cx="45.620" cy="78.944" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/><circle cx="44.094" cy="62.289" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/>
+<circle cx="58.907" cy="55.592" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/><circle cx="84.344" cy="52.971" r="0.5" fill="#fff" stroke="#000" stroke-width="0.18"/>
+</g>
+<text x="49.005" y="72.224" text-anchor="middle" stroke="#fff" stroke-width="0.5" stroke-linejoin="round" paint-order="stroke">S1</text>
+<text x="49.300" y="30.808" text-anchor="middle" stroke="#fff" stroke-width="0.5" stroke-linejoin="round" paint-order="stroke">S2</text>
+<text x="26.961" y="60.833" text-anchor="middle" stroke="#fff" stroke-width="0.5" stroke-linejoin="round" paint-order="stroke">A</text>
+<text x="68.051" y="26.932" text-anchor="middle" stroke="#fff" stroke-width="0.5" stroke-linejoin="round" paint-order="stroke">F</text>
+<path d="M98.308 97.000V97.800H115.000V97.000" fill="none" stroke="#000" stroke-width="0.25"/><text x="106.654" y="97.200" text-anchor="middle">1 m</text>
+</svg>

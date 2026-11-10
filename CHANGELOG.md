@@ -1,6 +1,8 @@
 # Changelog
 
 ## 1.2.0 — 2026-11-10
+* New example `examples/cyklop`: boom of the T-214 grapple loader described only from the
+  manufacturer's manual and parts catalogue (pins from a scale drawing, estimated arm masses).
 * STEP: B-spline surface faces (also rational and periodic) are integrated in their
   parameter domain. The boundary is mapped to (u, v) by point inversion on the surface,
   and Green's theorem is applied in (u, v) with the exact surface normal. Faces whose

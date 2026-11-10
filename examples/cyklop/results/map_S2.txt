@@ -1,0 +1,1 @@
+map S1 x S2 (21 x 21), loads of S2: p_max 80.05 bar

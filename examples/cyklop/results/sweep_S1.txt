@@ -1,0 +1,7 @@
+actuator S1, L 1002.00..1632.00 mm, 21 points
+  F_max 36577.3 N at L=1002.00   F_min 28780.9 N at L=1632.00
+  p_max 72.77 bar at L=1002.00
+  checks: |F_vw-F_fd|/max|F| = 5.01e-10, |F_vw-F_eq|/max|F| = 1.59e-15
+  energy: integral F dL = 20814.474 J, Delta V = 20814.472 J (rel. diff 9.77e-08)
+  reduced mass 17986.1..21703.6 kg, natural frequency 5.42..10.83 Hz
+  Euler load at L_max 156639 N, safety factor 4.28
